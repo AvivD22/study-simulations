@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מבנה עמוד השדרה וחוט השדרה (מדב"ר תשפ"ז)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Heebo (Hebrew) & Inter (English/Scientific) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    // הגדרות ערכת הנושא של Tailwind לתמיכה במצב כהה/בהיר ובצבעי ההדמיה
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Heebo', 'Inter', 'sans-serif'],
+            en: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            bio: {
+              bg: '#0b1120',
+              card: '#111827',
+              panel: '#1e293b',
+              border: '#334155',
+              accent: '#38bdf8',
+              teal: '#2dd4bf',
+              amber: '#fbbf24',
+              rose: '#fb7185',
+              violet: '#a78bfa'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Heebo', 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .ltr-term {
+      direction: ltr;
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    /* פס גלילה עדין */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.45);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.7);
+    }
+
+    /* מעברים אינטראקטיביים לאלמנטים בתרשימי SVG */
+    .svg-interactive {
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .svg-interactive:hover {
+      filter: brightness(1.18) drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+    }
+    .svg-selected {
+      filter: brightness(1.24) drop-shadow(0 0 11px rgba(56, 189, 248, 0.85));
+    }
+    .svg-selected rect,
+    .svg-selected ellipse,
+    .svg-selected polygon,
+    .svg-selected circle {
+      stroke: #ffffff !important;
+      stroke-width: 2.5px !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-bio-bg dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col">
+
+  <!-- כותרת עליונה (Header) -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-bio-bg/90 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <!-- סמל עמוד השדרה -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20 shrink-0">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20M8 5h8M7 9h10M8 13h8M9 17h6" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              מבנה עמוד השדרה וחוט השדרה
+            </h1>
+            <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-300 border border-sky-500/30">
+              מדב"ר תשפ"ז
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            31 זוגות עצבים, חלוקה סגמנטלית וזנב הסוס • <span class="ltr-term">Spinal Column &amp; Spinal Cord Anatomy</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- תגית מידע + כפתור החלפת ערכת נושא -->
+      <div class="flex items-center gap-2">
+        <span class="hidden md:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          חוט השדרה מסתיים בגובה <span class="ltr-term font-semibold">T12 / L1</span> &rarr; <span class="ltr-term">Cauda Equina</span>
+        </span>
+        <button id="themeToggle" type="button" aria-label="החלף ערכת נושא"
+          class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition">
+          <svg id="sunIcon" class="w-5 h-5 hidden dark:block text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="moonIcon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- תוכן ראשי -->
+  <main class="flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-7 flex flex-col justify-center">
+    <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8 items-stretch">
+
+      <!-- חלק 1 (צד ימין): תרשים אינטראקטיבי של חוט השדרה ועמוד השדרה (31 זוגות עצבים) -->
+      <div class="xl:col-span-6 bg-white dark:bg-bio-card rounded-2xl border border-slate-200 dark:border-slate-800 p-5 lg:p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <h2 class="text-lg xl:text-xl font-bold text-slate-900 dark:text-white mb-1">
+            החלוקה הסגמנטלית של חוט השדרה (31 זוגות עצבים)
+          </h2>
+          <p class="text-xs xl:text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+            חוט השדרה מסתיים סביב חוליה <strong>T12/L1</strong> (<span class="ltr-term">Conus Medullaris</span>) ואינו ממלא את כל תעלת השדרה; מתחתיו נמשכים שורשי העצבים כ<strong>זנב הסוס (<span class="ltr-term">Cauda Equina</span>)</strong>. לחצו על כל מקטע לחקירה:
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 lg:gap-5 my-auto">
+          <!-- תרשים אנכי אינטראקטיבי של עמוד השדרה -->
+          <div class="bg-slate-950/95 rounded-2xl border border-slate-800 p-3 shrink-0">
+            <svg viewBox="0 0 175 400" class="w-44 sm:w-48 h-auto select-none">
+              <!-- מעטפת תעלת עמוד השדרה -->
+              <rect x="60" y="16" width="54" height="368" rx="16" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+              <text x="87" y="11" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-weight="600">תעלת עמוד השדרה</text>
+
+              <!-- 1. צווארי: Cervical C1-C8 -->
+              <g id="spine-svg-cervical" onclick="selectSpineRegion('cervical')" class="svg-interactive svg-selected">
+                <rect x="65" y="24" width="44" height="70" rx="10" fill="#eab308" opacity="0.92" />
+                <text x="87" y="56" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="800">C1–C8</text>
+                <text x="87" y="69" text-anchor="middle" fill="#1e293b" font-size="8" font-weight="700">(8 זוגות)</text>
+              </g>
+
+              <!-- 2. חזי: Thoracic T1-T12 -->
+              <g id="spine-svg-thoracic" onclick="selectSpineRegion('thoracic')" class="svg-interactive">
+                <rect x="71" y="97" width="32" height="116" rx="6" fill="#8b5cf6" opacity="0.92" />
+                <text x="87" y="153" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="800">T1–T12</text>
+                <text x="87" y="166" text-anchor="middle" fill="#ede9fe" font-size="8" font-weight="600">(12 זוגות)</text>
+              </g>
+
+              <!-- 3. מותני: Lumbar L1-L5 -->
+              <g id="spine-svg-lumbar" onclick="selectSpineRegion('lumbar')" class="svg-interactive">
+                <rect x="65" y="216" width="44" height="46" rx="10" fill="#10b981" opacity="0.92" />
+                <text x="87" y="238" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="800">L1–L5</text>
+                <text x="87" y="250" text-anchor="middle" fill="#064e3b" font-size="8" font-weight="700">(5 זוגות)</text>
+              </g>
+
+              <!-- 4. עצה ועצם הזנב: Sacral & Coccygeal Conus -->
+              <g id="spine-svg-sacral" onclick="selectSpineRegion('sacral')" class="svg-interactive">
+                <polygon points="70,265 104,265 87,292" fill="#3b82f6" />
+                <text x="87" y="276" text-anchor="middle" fill="#ffffff" font-size="8.5" font-weight="800">S / Coc</text>
+              </g>
+
+              <!-- קו גובה סיום חוט השדרה (T12/L1) -->
+              <line x1="10" y1="292" x2="165" y2="292" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 2" />
+              <text x="33" y="287" text-anchor="middle" style="direction: ltr;" fill="#fbbf24" font-size="9" font-weight="700">T12 / L1</text>
+              <text x="141" y="287" text-anchor="middle" fill="#fbbf24" font-size="8.5" font-weight="700">סיום החוט</text>
+
+              <!-- 5. זנב הסוס: Cauda Equina -->
+              <g id="spine-svg-cauda" onclick="selectSpineRegion('cauda')" class="svg-interactive">
+                <line x1="79" y1="288" x2="69" y2="372" stroke="#94a3b8" stroke-width="1.6" />
+                <line x1="83" y1="290" x2="78" y2="376" stroke="#94a3b8" stroke-width="1.6" />
+                <line x1="87" y1="292" x2="87" y2="378" stroke="#38bdf8" stroke-width="2.2" />
+                <line x1="91" y1="290" x2="96" y2="376" stroke="#94a3b8" stroke-width="1.6" />
+                <line x1="95" y1="288" x2="105" y2="372" stroke="#94a3b8" stroke-width="1.6" />
+                <rect x="49" y="320" width="76" height="24" rx="6" fill="#0284c7" stroke="#7dd3fc" stroke-width="1" />
+                <text x="87" y="335" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700">זנב הסוס</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- כפתורי בחירת מקטע -->
+          <div class="flex-1 w-full space-y-2.5">
+            <button id="spine-btn-cervical" onclick="selectSpineRegion('cervical')" class="spine-seg-btn w-full text-right p-3 rounded-xl bg-yellow-500/15 border border-yellow-500/30 ring-2 ring-sky-400 hover:bg-yellow-500/25 transition">
+              <div class="font-bold text-xs xl:text-sm text-yellow-600 dark:text-yellow-300">צווארי — <span class="ltr-term">Cervical</span> (8 זוגות: C1–C8)</div>
+              <div class="text-[11px] xl:text-xs text-slate-600 dark:text-slate-300 mt-0.5">התעבות צווארית (<span class="ltr-term">Cervical enlargement</span>) לעצבוב הגפיים העליונות.</div>
+            </button>
+
+            <button id="spine-btn-thoracic" onclick="selectSpineRegion('thoracic')" class="spine-seg-btn w-full text-right p-3 rounded-xl bg-purple-500/15 border border-purple-500/30 hover:bg-purple-500/25 transition">
+              <div class="font-bold text-xs xl:text-sm text-purple-600 dark:text-purple-300">חזי — <span class="ltr-term">Thoracic</span> (12 זוגות: T1–T12)</div>
+              <div class="text-[11px] xl:text-xs text-slate-600 dark:text-slate-300 mt-0.5">קוטר צר; מכיל <strong>קרן צידית (<span class="ltr-term">Lateral horn</span>)</strong> של המערכת הסימפתטית.</div>
+            </button>
+
+            <button id="spine-btn-lumbar" onclick="selectSpineRegion('lumbar')" class="spine-seg-btn w-full text-right p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 transition">
+              <div class="font-bold text-xs xl:text-sm text-emerald-600 dark:text-emerald-300">מותני — <span class="ltr-term">Lumbar</span> (5 זוגות: L1–L5)</div>
+              <div class="text-[11px] xl:text-xs text-slate-600 dark:text-slate-300 mt-0.5">התעבות מותנית-עצית (<span class="ltr-term">Lumbosacral enlargement</span>) לעצבוב הגפיים התחתונות.</div>
+            </button>
+
+            <button id="spine-btn-sacral" onclick="selectSpineRegion('sacral')" class="spine-seg-btn w-full text-right p-3 rounded-xl bg-blue-500/15 border border-blue-500/30 hover:bg-blue-500/25 transition">
+              <div class="font-bold text-xs xl:text-sm text-blue-600 dark:text-blue-300">עצה (5: S1–S5) ועצם הזנב (1: Coc1)</div>
+              <div class="text-[11px] xl:text-xs text-slate-600 dark:text-slate-300 mt-0.5">קצה חוט השדרה (<span class="ltr-term">Conus Medullaris</span>) וגרעינים פאראסימפתטיים (S2–S4).</div>
+            </button>
+
+            <button id="spine-btn-cauda" onclick="selectSpineRegion('cauda')" class="spine-seg-btn w-full text-right p-3 rounded-xl bg-sky-500/15 border border-sky-500/30 hover:bg-sky-500/25 transition">
+              <div class="font-bold text-xs xl:text-sm text-sky-600 dark:text-sky-300">זנב הסוס — <span class="ltr-term">Cauda Equina</span> (ניקור מותני)</div>
+              <div class="text-[11px] xl:text-xs text-slate-600 dark:text-slate-300 mt-0.5">אוסף שורשי עצבים ב-CSF מתחת ל-L1; אתר בטוח לדיקור מותני (<span class="ltr-term">Lumbar Puncture</span>).</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- סיכום ספירת 31 הזוגות -->
+        <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs xl:text-sm text-slate-500 dark:text-slate-400">
+          <span>סה"כ עצבים שדרתיים: <strong>31 זוגות</strong></span>
+          <span class="ltr-term font-semibold">8C + 12T + 5L + 5S + 1Coc = 31</span>
+        </div>
+      </div>
+
+      <!-- חלק 2 (צד שמאל): כרטיס פירוט מעמיק + טבלה השוואתית של המקטעים -->
+      <div class="xl:col-span-6 flex flex-col gap-6 justify-between">
+        <!-- כרטיס פירוט דינמי למקטע הנבחר -->
+        <div id="spineInfoCard" class="bg-white dark:bg-bio-card rounded-2xl border border-slate-200 dark:border-slate-800 p-5 lg:p-6 shadow-sm flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <span id="spineInfoBadge" class="text-xs xl:text-sm font-bold px-2.5 py-1 rounded-lg bg-yellow-500/20 text-yellow-600 dark:text-yellow-300">
+                מקטע צווארי • 8 זוגות
+              </span>
+              <span id="spineInfoEn" class="text-xs xl:text-sm text-slate-400 ltr-term">
+                Cervical Region (C1–C8)
+              </span>
+            </div>
+            <h3 id="spineInfoTitle" class="font-bold text-slate-900 dark:text-white text-xl xl:text-2xl mb-3">
+              האזור הצווארי (<span class="ltr-term">Cervical Region: C1–C8</span>)
+            </h3>
+            <p id="spineInfoDesc" class="text-sm xl:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-5">
+              כולל 8 זוגות עצבים צוואריים (שימו לב: יש 8 זוגות עצבים צוואריים לעומת 7 חוליות צוואריות!). מתאפיין בהתעבות צווארית (<span class="ltr-term">Cervical enlargement</span>) עשירה בנוירונים המוטוריים והתחושתיים המעצבבים את הזרועות וכפות הידיים, וכן בכמות גדולה של חומר לבן.
+            </p>
+          </div>
+
+          <div class="bg-slate-100 dark:bg-slate-800/80 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <h4 class="text-xs xl:text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">מאפיינים אנטומיים וקליניים מרכזיים:</h4>
+            <ul id="spineInfoBullets" class="space-y-2 text-xs xl:text-sm text-slate-700 dark:text-slate-200">
+              <li>• <strong>התעבות צווארית (<span class="ltr-term">Cervical Enlargement</span>):</strong> הרחבה של החומר האפור עבור עצבוב הגפיים העליונות (<span class="ltr-term">Brachial Plexus</span>).</li>
+              <li>• <strong>יחס חוליות-עצבים:</strong> עצבים C1–C7 יוצאים מעל החוליה המתאימה, ועצב C8 יוצא מתחת לחוליה C7.</li>
+              <li>• <strong>שפע חומר לבן:</strong> מכיל את כל המסילות העולות אל המוח וכל המסילות היורדות אל שאר הגוף.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- טבלה מסכמת אינטראקטיבית של כל המקטעים -->
+        <div class="bg-white dark:bg-bio-card rounded-2xl border border-slate-200 dark:border-slate-800 p-5 lg:p-6 shadow-sm">
+          <h3 class="text-base xl:text-lg font-bold text-slate-900 dark:text-white mb-3">
+            טבלת סיכום: 31 זוגות העצבים השדרתיים ומבנים ייחודיים
+          </h3>
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 text-xs xl:text-sm">
+            <table class="w-full text-right border-collapse">
+              <thead>
+                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
+                  <th class="p-2.5 font-bold">האזור</th>
+                  <th class="p-2.5 font-bold">זוגות עצבים</th>
+                  <th class="p-2.5 font-bold">מאפיין אנטומי ייחודי</th>
+                  <th class="p-2.5 font-bold">אזורי עצבוב עיקריים</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                <tr id="spine-row-cervical" onclick="selectSpineRegion('cervical')" class="spine-table-row cursor-pointer bg-sky-500/10 hover:bg-yellow-500/15 transition">
+                  <td class="p-2.5 font-bold text-yellow-600 dark:text-yellow-300">צווארי (<span class="ltr-term">C</span>)</td>
+                  <td class="p-2.5 font-semibold">8 (<span class="ltr-term">C1–C8</span>)</td>
+                  <td class="p-2.5">התעבות צווארית + חומר לבן רב</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">צוואר, סרעפת (C3–C5) וגפיים עליונות</td>
+                </tr>
+                <tr id="spine-row-thoracic" onclick="selectSpineRegion('thoracic')" class="spine-table-row cursor-pointer hover:bg-purple-500/15 transition">
+                  <td class="p-2.5 font-bold text-purple-600 dark:text-purple-300">חזי (<span class="ltr-term">T</span>)</td>
+                  <td class="p-2.5 font-semibold">12 (<span class="ltr-term">T1–T12</span>)</td>
+                  <td class="p-2.5">קרן צידית (<span class="ltr-term">Lateral Horn</span>)</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">בית החזה, הגו ומערכת סימפתטית</td>
+                </tr>
+                <tr id="spine-row-lumbar" onclick="selectSpineRegion('lumbar')" class="spine-table-row cursor-pointer hover:bg-emerald-500/15 transition">
+                  <td class="p-2.5 font-bold text-emerald-600 dark:text-emerald-300">מותני (<span class="ltr-term">L</span>)</td>
+                  <td class="p-2.5 font-semibold">5 (<span class="ltr-term">L1–L5</span>)</td>
+                  <td class="p-2.5">התעבות מותנית-עצית</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">בטן תחתונה וגפיים תחתונות</td>
+                </tr>
+                <tr id="spine-row-sacral" onclick="selectSpineRegion('sacral')" class="spine-table-row cursor-pointer hover:bg-blue-500/15 transition">
+                  <td class="p-2.5 font-bold text-blue-600 dark:text-blue-300">עצה וזנב (<span class="ltr-term">S/Coc</span>)</td>
+                  <td class="p-2.5 font-semibold">5 + 1 (<span class="ltr-term">S1–Coc1</span>)</td>
+                  <td class="p-2.5"><span class="ltr-term">Conus Medullaris</span> (T12/L1)</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">אגן, שלפוחית שתן, מעי גס ואיברי מין</td>
+                </tr>
+                <tr id="spine-row-cauda" onclick="selectSpineRegion('cauda')" class="spine-table-row cursor-pointer hover:bg-sky-500/15 transition">
+                  <td class="p-2.5 font-bold text-sky-600 dark:text-sky-300">זנב הסוס</td>
+                  <td class="p-2.5 font-semibold">שורשי <span class="ltr-term">L2–Coc1</span></td>
+                  <td class="p-2.5">צבר שורשי עצבים בנוזל CSF</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">אתר בטוח לניקור מותני (<span class="ltr-term">L3–L5</span>)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- כותרת תחתונה -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 py-4 px-6 text-center text-xs text-slate-500 dark:text-slate-400">
+    מבנה עמוד השדרה וחוט השדרה • מבוסס על מצגת מדב"ר תשפ"ז
+  </footer>
+
+  <!-- לוגיקת JavaScript -->
+  <script>
+    // החלפת ערכת נושא (כהה / בהיר)
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // מידע מפורט על מקטעי עמוד השדרה וחוט השדרה (31 זוגות עצבים)
+    const spineRegionInfo = {
+      cervical: {
+        badge: 'מקטע צווארי • 8 זוגות',
+        badgeClass: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-300',
+        en: 'Cervical Region (C1–C8)',
+        title: 'האזור הצווארי (Cervical Region: C1–C8)',
+        desc: 'כולל 8 זוגות עצבים צוואריים (שימו לב: יש 8 זוגות עצבים צוואריים לעומת 7 חוליות צוואריות!). מתאפיין בהתעבות צווארית (Cervical enlargement) עשירה בנוירונים המוטוריים והתחושתיים המעצבבים את הזרועות וכפות הידיים, וכן בכמות גדולה של חומר לבן.',
+        bullets: [
+          '<strong>התעבות צווארית (Cervical Enlargement):</strong> הרחבה של החומר האפור עבור עצבוב הגפיים העליונות (Brachial Plexus).',
+          '<strong>יחס חוליות-עצבים:</strong> עצבים C1–C7 יוצאים מעל החוליה המתאימה, ועצב C8 יוצא מתחת לחוליה C7.',
+          '<strong>שפע חומר לבן:</strong> מכיל את כל המסילות העולות אל המוח וכל המסילות היורדות אל שאר הגוף.'
+        ]
+      },
+      thoracic: {
+        badge: 'מקטע חזי • 12 זוגות',
+        badgeClass: 'bg-purple-500/20 text-purple-600 dark:text-purple-300',
+        en: 'Thoracic Region (T1–T12)',
+        title: 'האזור החזי (Thoracic Region: T1–T12)',
+        desc: 'כולל 12 זוגות עצבים חזיים. קוטר החומר האפור בו קטן יחסית כי אינו מעצבב גפיים, אך הוא מכיל את הקרן הצידית (Lateral horn) שבה שוכנים גופי התאים הפרה-גנגליוניים של המערכת הסימפתטית.',
+        bullets: [
+          '<strong>קרן צידית (Lateral Horn):</strong> מאפיינת את המקטעים T1–L2 ומהווה את מוצא המערכת הסימפתטית (Thoracolumbar).',
+          '<strong>קוטר חומר אפור צר:</strong> בהיעדר עצבוב גפיים, הקרן הגחונית והגבית צרות יותר בהשוואה לאזור הצווארי והמותני.',
+          '<strong>אזורי עצבוב:</strong> שרירי בית החזה, שרירים בין-צלעיים, שרירי הגב והבטן העליונה.'
+        ]
+      },
+      lumbar: {
+        badge: 'מקטע מותני • 5 זוגות',
+        badgeClass: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300',
+        en: 'Lumbar Region (L1–L5)',
+        title: 'האזור המותני (Lumbar Region: L1–L5)',
+        desc: 'כולל 5 זוגות עצבים מותניים. מתאפיין בהתעבות מותנית-עצית (Lumbosacral enlargement) עקב ריבוי הנוירונים המעצבבים את שרירי ועור הגפיים התחתונות.',
+        bullets: [
+          '<strong>התעבות מותנית-עצית (Lumbosacral Enlargement):</strong> ריכוז גבוה של נוירונים מוטוריים ותחושתיים עבור הרגליים.',
+          '<strong>יחס חומר אפור/לבן:</strong> כמות החומר הלבן פוחתת משמעותית (כי רוב המסילות כבר הסתיימו או טרם הצטרפו), בעוד החומר האפור רחב.',
+          '<strong>מיקום אנטומי:</strong> מקטעי חוט השדרה המותניים יושבים בפועל מול חוליות בית החזה התחתונות (T10–T12).'
+        ]
+      },
+      sacral: {
+        badge: 'עצה ועצם הזנב • 6 זוגות',
+        badgeClass: 'bg-blue-500/20 text-blue-600 dark:text-blue-300',
+        en: 'Sacral (S1–S5) & Coccygeal (Coc1)',
+        title: 'אזור העצה ועצם הזנב (Sacral S1–S5 & Coccygeal Coc1)',
+        desc: 'כולל 5 זוגות עצבי עצה וזוג אחד של עצם הזנב, המסתיימים בחרוט השדרה (Conus Medullaris) בגובה חוליה T12/L1. מכיל גם נוירונים פרה-גנגליוניים של המערכת הפאראסימפתטית (S2–S4).',
+        bullets: [
+          '<strong>חרוט השדרה (Conus Medullaris):</strong> הקצה המחודד והתחתון של רקמת חוט השדרה בגובה T12/L1.',
+          '<strong>עצבוב פאראסימפתטי אגני (S2–S4):</strong> שולט בהתרוקנות שלפוחית השתן, המעי הגס ותפקודים מיניים.',
+          '<strong>חוט הסיום (Filum Terminale):</strong> רצועת רקמת חיבור המעגנת את קצה חוט השדרה אל עצם הזנב.'
+        ]
+      },
+      cauda: {
+        badge: 'מתחת לגובה T12/L1 • ניקור מותני',
+        badgeClass: 'bg-sky-500/20 text-sky-600 dark:text-sky-300',
+        en: 'Cauda Equina & Lumbar Puncture',
+        title: 'זנב הסוס (Cauda Equina) וניקור מותני (Lumbar Puncture)',
+        desc: 'מכיוון שחוט השדרה מסתיים סביב חוליה T12/L1 בעקבות קצב גדילה שונה של עמוד השדרה לעומת חוט השדרה בהתפתחות, שורשי העצבים המותניים והעציים יורדים בתוך תעלת השדרה כצבר סיבים המזכיר זנב סוס בתוך נוזל CSF.',
+        bullets: [
+          '<strong>משמעות קלינית — ניקור מותני (Lumbar Puncture):</strong> מבוצע בין חוליות L3–L4 או L4–L5 (מתחת לסיום חוט השדרה ב-L1).',
+          '<strong>בטיחות מרבית:</strong> שורשי העצבים צפים בחופשיות בנוזל ה-CSF וזזים הצידה ממחט הדיקור מבלי להיפגע.',
+          '<strong>שימושים רפואיים:</strong> דגימת CSF לאבחון זיהומים/דימומים, והזרקת הרדמה ספינאלית.'
+        ]
+      }
+    };
+
+    function selectSpineRegion(key) {
+      const info = spineRegionInfo[key];
+      if (!info) return;
+
+      const keys = ['cervical', 'thoracic', 'lumbar', 'sacral', 'cauda'];
+      keys.forEach(k => {
+        const svgEl = document.getElementById(`spine-svg-${k}`);
+        const btnEl = document.getElementById(`spine-btn-${k}`);
+        const rowEl = document.getElementById(`spine-row-${k}`);
+        if (svgEl) svgEl.classList.toggle('svg-selected', k === key);
+        if (btnEl) {
+          btnEl.classList.toggle('ring-2', k === key);
+          btnEl.classList.toggle('ring-sky-400', k === key);
+        }
+        if (rowEl) {
+          rowEl.classList.toggle('bg-sky-500/10', k === key);
+        }
+      });
+
+      const badgeEl = document.getElementById('spineInfoBadge');
+      badgeEl.textContent = info.badge;
+      badgeEl.className = `text-xs xl:text-sm font-bold px-2.5 py-1 rounded-lg ${info.badgeClass}`;
+      document.getElementById('spineInfoEn').textContent = info.en;
+      document.getElementById('spineInfoTitle').textContent = info.title;
+      document.getElementById('spineInfoDesc').textContent = info.desc;
+      document.getElementById('spineInfoBullets').innerHTML = info.bullets.map(b => `<li>• ${b}</li>`).join('');
+    }
+  </script>
+</body>
+</html>
