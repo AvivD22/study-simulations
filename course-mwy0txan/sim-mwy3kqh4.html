@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7 החלקים העיקריים של מערכת העצבים המרכזית (CNS)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Heebo (Hebrew) & Inter (English/Scientific) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    // הגדרות Tailwind לתמיכה במצב כהה/בהיר ובצבעי ההדמיה
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Heebo', 'Inter', 'sans-serif'],
+            en: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            bio: {
+              bg: '#0b1120',
+              card: '#111827',
+              panel: '#1e293b',
+              border: '#334155',
+              accent: '#38bdf8',
+              teal: '#2dd4bf',
+              amber: '#fbbf24',
+              rose: '#fb7185',
+              violet: '#a78bfa'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Heebo', 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .ltr-term {
+      direction: ltr;
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* פס גלילה מותאם */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.45);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.7);
+    }
+
+    /* אפקטים אינטראקטיביים לאלמנטים ב-SVG */
+    .svg-interactive {
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .svg-interactive:hover {
+      filter: brightness(1.18) drop-shadow(0 0 8px rgba(56, 189, 248, 0.45));
+    }
+    .svg-selected {
+      filter: brightness(1.22) drop-shadow(0 0 12px rgba(56, 189, 248, 0.85));
+    }
+    .svg-selected path,
+    .svg-selected rect,
+    .svg-selected ellipse {
+      stroke: #ffffff !important;
+      stroke-width: 2.6px !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-bio-bg dark:text-slate-100 transition-colors duration-300 min-h-screen flex flex-col">
+
+  <!-- כותרת עליונה (Header) -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-bio-bg/90 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <!-- סמל המוח -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20 shrink-0">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 3a3.5 3.5 0 0 0-3.36 2.53A3.5 3.5 0 0 0 4 8.75c0 1.24.64 2.33 1.61 2.95A3.5 3.5 0 0 0 7.5 18H9v3h2V3H9.5zM14.5 3a3.5 3.5 0 0 1 3.36 2.53A3.5 3.5 0 0 1 20 8.75c0 1.24-.64 2.33-1.61 2.95A3.5 3.5 0 0 1 16.5 18H15v3h-2V3h1.5z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              7 החלקים העיקריים של מערכת העצבים המרכזית (CNS)
+            </h1>
+            <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-600 dark:text-sky-300 border border-sky-500/30">
+              מדב"ר תשפ"ז
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            אנטומיה ותפקוד מהזנב אל האף (<span class="ltr-term">Caudal &rarr; Rostral</span>) • <span class="ltr-term">7 Major Divisions of the CNS</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- תגית ציר + כפתור החלפת ערכת נושא -->
+      <div class="flex items-center gap-2">
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+          1. חוט השדרה &rarr; 7. המוח הגדול
+        </span>
+        <button id="themeToggle" type="button" aria-label="החלף ערכת נושא"
+          class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition">
+          <svg id="sunIcon" class="w-5 h-5 hidden dark:block text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="moonIcon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- תוכן ראשי -->
+  <main class="flex-1 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-5 lg:py-7 flex flex-col justify-center">
+    <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8 items-stretch">
+
+      <!-- צד ימין (ובחצי מסך - רוחב מלא): תרשים ה-SVG האינטראקטיבי + רשימת 7 החלקים -->
+      <div class="xl:col-span-6 bg-white dark:bg-bio-card rounded-2xl border border-slate-200 dark:border-slate-800 p-5 lg:p-6 shadow-sm flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg xl:text-xl font-bold text-slate-900 dark:text-white">תרשים 7 חלקי ה-CNS</h2>
+            <p class="text-xs xl:text-sm text-slate-500 dark:text-slate-400">לחצו על כל חלק בתרשים או ברשימה לחקירת המבנה ותפקידיו:</p>
+          </div>
+          <!-- כפתורי הדגשת קבוצות אנטומיות -->
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="highlightGroup([2, 3, 4], 'brainstem')"
+              class="text-xs px-3 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-500/30 font-semibold transition">
+              הדגש גזע המוח (2+3+4)
+            </button>
+            <button onclick="highlightGroup([6, 7], 'forebrain')"
+              class="text-xs px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-700 dark:text-sky-300 border border-sky-500/30 font-semibold transition">
+              הדגש מוח קדמי (6+7)
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 flex flex-col sm:flex-row items-center gap-5">
+          <!-- תרשים חתך סגיטלי של הראש וה-CNS -->
+          <div class="w-full sm:w-1/2 flex justify-center bg-slate-950/95 rounded-2xl border border-slate-800 p-3">
+            <svg viewBox="0 0 320 430" class="w-full max-w-[330px] h-auto select-none">
+              <!-- קו מתאר של הראש והצוואר -->
+              <path d="M 95 415 L 95 255 C 72 242, 65 215, 78 195 L 62 172 C 58 164, 65 152, 76 144 C 74 82, 118 28, 185 28 C 255 28, 295 75, 290 142 C 285 185, 255 212, 228 228 L 228 415"
+                fill="none" stroke="#334155" stroke-width="2" />
+
+              <!-- 7. המוח הגדול (Cerebrum) -->
+              <g id="cns-part-7" onclick="selectCnsPart(7)" class="svg-interactive svg-selected">
+                <path d="M 88 135 C 84 75, 132 42, 190 42 C 248 42, 278 82, 274 136 C 271 164, 245 174, 212 170 C 205 142, 185 122, 154 122 C 128 122, 112 138, 106 154 C 95 152, 89 145, 88 135 Z"
+                  fill="#0284c7" stroke="#38bdf8" stroke-width="2" />
+                <!-- קווי קפלים (Gyri & Sulci) -->
+                <path d="M 122 76 Q 145 92 168 72 M 185 60 Q 202 88 225 74 M 112 108 Q 140 100 158 112 M 215 106 Q 238 118 256 102"
+                  stroke="#7dd3fc" stroke-width="1.5" fill="none" opacity="0.65" />
+                <text x="182" y="92" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">7. המוח הגדול (Cerebrum)</text>
+              </g>
+
+              <!-- 6. מוח הביניים (Diencephalon) -->
+              <g id="cns-part-6" onclick="selectCnsPart(6)" class="svg-interactive">
+                <path d="M 134 146 C 136 130, 165 126, 186 136 C 196 142, 194 162, 178 168 L 154 176 L 144 166 C 136 162, 132 154, 134 146 Z"
+                  fill="#d97706" stroke="#fbbf24" stroke-width="1.8" />
+                <text x="164" y="153" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">6. Diencephalon</text>
+              </g>
+
+              <!-- 4. המוח האמצעי (Midbrain) -->
+              <g id="cns-part-4" onclick="selectCnsPart(4)" class="svg-interactive">
+                <path d="M 152 174 L 184 170 L 188 192 L 155 195 Z" fill="#7c3aed" stroke="#a78bfa" stroke-width="1.8" />
+                <text x="120" y="188" text-anchor="end" fill="#c4b5fd" font-size="10" font-weight="700">4. Midbrain</text>
+              </g>
+
+              <!-- 3. הגשר (Pons) -->
+              <g id="cns-part-3" onclick="selectCnsPart(3)" class="svg-interactive">
+                <path d="M 152 195 C 142 204, 144 222, 156 230 L 188 228 L 188 192 Z" fill="#16a34a" stroke="#4ade80" stroke-width="1.8" />
+                <text x="138" y="216" text-anchor="end" fill="#86efac" font-size="10" font-weight="700">3. Pons</text>
+              </g>
+
+              <!-- 5. המוח הקטן (Cerebellum) -->
+              <g id="cns-part-5" onclick="selectCnsPart(5)" class="svg-interactive">
+                <path d="M 192 182 C 228 176, 256 192, 252 218 C 248 240, 218 248, 192 234 Z" fill="#4d7c0f" stroke="#a3e635" stroke-width="1.8" />
+                <path d="M 198 198 L 244 198 M 198 210 L 246 210 M 198 222 L 238 222" stroke="#bef264" stroke-width="1.2" opacity="0.7" />
+                <text x="223" y="214" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">5. Cerebellum</text>
+              </g>
+
+              <!-- 2. המוח המוארך (Medulla) -->
+              <g id="cns-part-2" onclick="selectCnsPart(2)" class="svg-interactive">
+                <path d="M 158 230 L 188 228 L 191 268 L 163 268 Z" fill="#e11d48" stroke="#fb7185" stroke-width="1.8" />
+                <text x="150" y="252" text-anchor="end" fill="#fda4af" font-size="10" font-weight="700">2. Medulla</text>
+              </g>
+
+              <!-- 1. חוט השדרה (Spinal Cord) -->
+              <g id="cns-part-1" onclick="selectCnsPart(1)" class="svg-interactive">
+                <path d="M 164 268 L 190 268 L 194 410 L 168 410 Z" fill="#ca8a04" stroke="#facc15" stroke-width="1.8" />
+                <text x="156" y="340" text-anchor="end" fill="#fde047" font-size="10.5" font-weight="700">1. Spinal Cord</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- רשימת בחירה מהירה (7 מלמעלה/אפי ועד 1 מלמטה/זנבי) -->
+          <div class="flex-1 w-full space-y-2">
+            <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 px-1 flex justify-between">
+              <span>בחירה לפי סדר אנטומי:</span>
+              <span class="ltr-term">Rostral &uarr; | &darr; Caudal</span>
+            </div>
+
+            <button id="cns-btn-7" onclick="selectCnsPart(7)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-sky-500/20 text-sky-600 dark:text-sky-300 border border-sky-500/40 flex justify-between items-center transition">
+              <span>7. המוח הגדול (<span class="ltr-term">Cerebrum</span>)</span>
+              <span class="text-[11px] opacity-85">אפי (Rostral)</span>
+            </button>
+
+            <button id="cns-btn-6" onclick="selectCnsPart(6)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-500/15 border border-transparent flex justify-between items-center transition">
+              <span>6. מוח הביניים (<span class="ltr-term">Diencephalon</span>)</span>
+              <span class="text-[11px] text-amber-500 dark:text-amber-400">תלמוס והיפותלמוס</span>
+            </button>
+
+            <button id="cns-btn-5" onclick="selectCnsPart(5)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800/80 hover:bg-lime-500/15 border border-transparent flex justify-between items-center transition">
+              <span>5. המוח הקטן (<span class="ltr-term">Cerebellum</span>)</span>
+              <span class="text-[11px] text-lime-600 dark:text-lime-400">קואורדינציה ולמידה</span>
+            </button>
+
+            <button id="cns-btn-4" onclick="selectCnsPart(4)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800/80 hover:bg-purple-500/15 border border-transparent flex justify-between items-center transition">
+              <span>4. המוח האמצעי (<span class="ltr-term">Midbrain</span>)</span>
+              <span class="text-[11px] text-purple-500 dark:text-purple-400">גזע המוח</span>
+            </button>
+
+            <button id="cns-btn-3" onclick="selectCnsPart(3)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800/80 hover:bg-green-500/15 border border-transparent flex justify-between items-center transition">
+              <span>3. הגשר (<span class="ltr-term">Pons</span>)</span>
+              <span class="text-[11px] text-green-600 dark:text-green-400">גזע המוח</span>
+            </button>
+
+            <button id="cns-btn-2" onclick="selectCnsPart(2)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-500/15 border border-transparent flex justify-between items-center transition">
+              <span>2. המוח המוארך (<span class="ltr-term">Medulla</span>)</span>
+              <span class="text-[11px] text-rose-500 dark:text-rose-400">גזע המוח</span>
+            </button>
+
+            <button id="cns-btn-1" onclick="selectCnsPart(1)" class="cns-list-btn w-full text-right px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 dark:bg-slate-800/80 hover:bg-yellow-500/15 border border-transparent flex justify-between items-center transition">
+              <span>1. חוט השדרה (<span class="ltr-term">Spinal Cord</span>)</span>
+              <span class="text-[11px] opacity-85">זנבי (Caudal)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- צד שמאל (ובחצי מסך - מתחת לתרשים): כרטיס פירוט דינמי + חלוקה התפתחותית -->
+      <div class="xl:col-span-6 flex flex-col gap-6 justify-between">
+        <!-- כרטיס פירוט של החלק הנבחר -->
+        <div id="cnsDetailCard" class="bg-white dark:bg-bio-card rounded-2xl border border-slate-200 dark:border-slate-800 p-5 lg:p-6 shadow-sm flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <span id="cnsPartNumber" class="text-xs xl:text-sm font-bold px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-600 dark:text-sky-400">
+                חלק #7 (האפי ביותר - Rostral)
+              </span>
+              <span id="cnsPartRegion" class="text-xs xl:text-sm text-slate-400 ltr-term">
+                Forebrain / Telencephalon
+              </span>
+            </div>
+            <h3 id="cnsPartTitle" class="text-xl xl:text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              המוח הגדול / ההמיספרות (<span class="ltr-term">Cerebrum / Cerebral Hemispheres</span>)
+            </h3>
+            <p id="cnsPartDesc" class="text-sm xl:text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
+              החלק הגדול והמפותח ביותר במוח האדם. כולל את קליפת המוח (Cerebral Cortex) האחראית לתפיסה חושית, תנועה רצונית ותפקודים קוגניטיביים גבוהים, וכן מבנים תת-קורטיקליים ועמוקים חיוניים.
+            </p>
+          </div>
+
+          <div class="bg-slate-100 dark:bg-slate-800/75 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+            <h4 class="text-xs xl:text-sm font-bold text-slate-500 dark:text-slate-400 mb-2.5">מבנים, גרעינים ותפקידים מרכזיים:</h4>
+            <ul id="cnsPartSublist" class="space-y-2 text-xs xl:text-sm text-slate-700 dark:text-slate-200">
+              <li>• <strong>קליפת המוח (Cerebral Cortex):</strong> שכבה חיצונית של חומר אפור בעלת קפלים (Gyri) וחריצים (Sulci).</li>
+              <li>• <strong>גרעיני הבסיס (Basal Ganglia):</strong> Caudate, Putamen, Globus Pallidus — בקרת תנועה ותכנון פעולות.</li>
+              <li>• <strong>היפוקמפוס (Hippocampus):</strong> זיכרון הצהרתי וניווט מרחבי.</li>
+              <li>• <strong>אמיגדלה (Amygdala):</strong> עיבוד רגשי ותגובות פחד והגנה.</li>
+              <li>• <strong>פקעת ההרחה (Olfactory Bulb):</strong> עיבוד ראשוני של חוש הריח.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- טבלת קיבוץ אנטומי-התפתחותי (לחיצה להדגשה בתרשים) -->
+        <div class="bg-white dark:bg-bio-card rounded-2xl border border-slate-200 dark:border-slate-800 p-5 lg:p-6 shadow-sm">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h3 class="text-base xl:text-lg font-bold text-slate-900 dark:text-white">
+              קיבוץ לחטיבות המוח העיקריות (לחצו להדגשה בתרשים)
+            </h3>
+          </div>
+          <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 text-xs xl:text-sm">
+            <table class="w-full text-right border-collapse">
+              <thead>
+                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700">
+                  <th class="p-2.5 font-bold">החטיבה האנטומית</th>
+                  <th class="p-2.5 font-bold">החלקים הכלולים (מתוך 7)</th>
+                  <th class="p-2.5 font-bold">תפקיד על</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                <tr onclick="highlightGroup([6, 7], 'forebrain')" class="cursor-pointer hover:bg-sky-500/10 transition">
+                  <td class="p-2.5 font-bold text-sky-600 dark:text-sky-400">המוח הקדמי (<span class="ltr-term">Forebrain</span>)</td>
+                  <td class="p-2.5">6. מוח הביניים + 7. המוח הגדול</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">תפיסה, קוגניציה, זיכרון, ממסר והומאוסטזיס</td>
+                </tr>
+                <tr onclick="highlightGroup([2, 3, 4], 'brainstem')" class="cursor-pointer hover:bg-purple-500/10 transition">
+                  <td class="p-2.5 font-bold text-purple-600 dark:text-purple-400">גזע המוח (<span class="ltr-term">Brainstem</span>)</td>
+                  <td class="p-2.5">2. מדולה + 3. גשר + 4. מוח אמצעי</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">הולכת מסילות, נשימה, דופק, עוררות ועצבים קרניאליים</td>
+                </tr>
+                <tr onclick="highlightGroup([2, 3, 5], 'hindbrain')" class="cursor-pointer hover:bg-lime-500/10 transition">
+                  <td class="p-2.5 font-bold text-lime-600 dark:text-lime-400">המוח האחורי (<span class="ltr-term">Hindbrain</span>)</td>
+                  <td class="p-2.5">2. מדולה + 3. גשר + 5. המוח הקטן</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">קואורדינציה מוטורית, שיווי משקל ותפקודים חיוניים</td>
+                </tr>
+                <tr onclick="selectCnsPart(1)" class="cursor-pointer hover:bg-yellow-500/10 transition">
+                  <td class="p-2.5 font-bold text-yellow-600 dark:text-yellow-400">חוט השדרה (<span class="ltr-term">Spinal Cord</span>)</td>
+                  <td class="p-2.5">1. חוט השדרה</td>
+                  <td class="p-2.5 text-slate-600 dark:text-slate-300">קשר עם הגוף, מעגלי רפלקס והולכה אל המוח וממנו</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- כותרת תחתונה -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 py-4 px-6 text-center text-xs text-slate-500 dark:text-slate-400">
+    7 החלקים העיקריים של מערכת העצבים המרכזית • מבוסס על מצגת מדב"ר תשפ"ז
+  </footer>
+
+  <!-- לוגיקת JavaScript -->
+  <script>
+    // החלפת ערכת נושא (כהה / בהיר)
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // מאגר המידע עבור 7 חלקי ה-CNS
+    const cnsPartsData = {
+      1: {
+        badge: 'חלק #1 (הזנבי ביותר - Caudal)',
+        region: 'Spinal Cord',
+        title: 'חוט השדרה (Spinal Cord)',
+        desc: 'חלק ממערכת העצבים המרכזית הנמשך מהמוח המוארך (Medulla) ועד גובה חוליה T12/L1. מכיל מעגלים עצביים מורכבים המבצעים חישובים ורפלקסים (כגון רפלקס המתיחה) ומעביר מסילות עולות ויורדות בין הגוף למוח.',
+        subs: [
+          '<strong>חומר אפור פנימי בצורת פרפר:</strong> קרן גבית (תחושתית), קרן גחונית (מוטורית) וקרן צידית (אוטונומית).',
+          '<strong>חומר לבן היקפי:</strong> עמודות גביות, צידיות וגחוניות של אקסונים עטופי מיאלין.',
+          '<strong>31 זוגות עצבים שדרתיים:</strong> 8 צוואריים, 12 חזיים, 5 מותניים, 5 עציים, 1 זנבי.',
+          '<strong>זנב הסוס (Cauda Equina):</strong> צבר שורשי עצבים מתחת לסיום חוט השדרה (L1).'
+        ]
+      },
+      2: {
+        badge: 'חלק #2 • חלק מגזע המוח (Brainstem)',
+        region: 'Myelencephalon / Medulla Oblongata',
+        title: 'המוח המוארך (Medulla)',
+        desc: 'החלק התחתון ביותר של גזע המוח, המשכי לחוט השדרה. דרכו עוברות כל המסילות העולות והיורדות (רבות מהן מצטלבות בו לצד הנגדי), והוא מכיל גרעינים חיוניים לבקרת נשימה, קצב לב, לחץ דם ורפלקסים של בליעה והקאה.',
+        subs: [
+          '<strong>פירמידות המדולה (Medullary Pyramids):</strong> מסילות מוטוריות יורדות מהקורטקס.',
+          '<strong>גרעיני עצבים קרניאליים (IX, X, XI, XII):</strong> שליטה על הלוע, הגרון, הלשון והעצב התועה (Vagus).',
+          '<strong>גרעיני העמודות הגביות (Gracilis & Cuneatus):</strong> תחנת ממסר ראשונה למידע תחושתי של מגע עדין ופרופריוספציה.'
+        ]
+      },
+      3: {
+        badge: 'חלק #3 • חלק מגזע המוח (Brainstem)',
+        region: 'Metencephalon / Pons',
+        title: 'הגשר (Pons)',
+        desc: 'ממוקם בין המוח המוארך למוח האמצעי, בקדמת המוח הקטן. משמש כגשר תקשורת מרכזי המעביר מידע מקליפת המוח אל המוח הקטן (Cerebellum) ומכיל גרעינים החיוניים לשינה, עוררות והבעות פנים.',
+        subs: [
+          '<strong>גרעינים פונטיניים ורגלי המוח הקטן (Cerebellar Peduncles):</strong> חיבור מסיבי אל הצרבלום.',
+          '<strong>גרעיני עצבים קרניאליים (V, VI, VII, VIII):</strong> תחושת פנים ולעיסה, תנועות עיניים, הבעות פנים, שמיעה ושיווי משקל.'
+        ]
+      },
+      4: {
+        badge: 'חלק #4 • חלק מגזע המוח (Brainstem)',
+        region: 'Mesencephalon / Midbrain',
+        title: 'המוח האמצעי (Midbrain)',
+        desc: 'החלק העליון של גזע המוח. מעורב בעיבוד ראייה ושמיעה רפלקסיביים, תנועות עיניים, וכן מכיל מערכות מודולטוריות מרכזיות (כגון דופמין) המשפיעות על תנועה, תגמול ועוררות.',
+        subs: [
+          '<strong>Superior & Inferior Colliculi:</strong> תחנות עיבוד לתנועות עיניים וראש לעבר גירויי ראייה ושמיעה.',
+          '<strong>Substantia Nigra & VTA:</strong> גרעינים דופמינרגיים החיוניים לבקרת תנועה (גרעיני הבסיס) ולמערכת התגמול.',
+          '<strong>גרעיני עצבים קרניאליים III ו-IV:</strong> שליטה על מרבית שרירי גלגל העין והאישון.'
+        ]
+      },
+      5: {
+        badge: 'חלק #5 • מאחורי גזע המוח',
+        region: 'Metencephalon / Cerebellum',
+        title: 'המוח הקטן (Cerebellum - "Little Brain")',
+        desc: 'ממוקם בחלק האחורי של המוח מאחורי גזע המוח. נחשב מסורתית לחלק מהמערכת המוטורית (קואורדינציה, תזמון תנועות, שיווי משקל ולמידה מוטורית), אך מעורב גם בוויסות רגשי, שפה וקוגניציה.',
+        subs: [
+          '<strong>תאי פורקיניה (Purkinje Cells):</strong> נוירונים בעלי עץ דנדריטי עצום ומסועף המהווים את ליבת המעגל החישובי של הצרבלום.',
+          '<strong>ארגון מבני אחיד להפליא:</strong> קליפה צרבלרית מקופלת בצפיפות וגרעינים עמוקים (Deep Cerebellar Nuclei).'
+        ]
+      },
+      6: {
+        badge: 'חלק #6 • חלק אחורי של המוח הקדמי (Forebrain)',
+        region: 'Diencephalon (Thalamus & Hypothalamus)',
+        title: 'מוח הביניים (Diencephalon)',
+        desc: 'החלק האחורי של המוח הקדמי (Forebrain), המוקף בהמיספרות המוח הגדול. מורכב משני מבנים מרכזיים: התלמוס וההיפותלמוס.',
+        subs: [
+          '<strong>התלמוס (Thalamus - "חדר" ביוונית):</strong> אוסף של כ-50 גרעינים המהווה שער ותחנת עיבוד חישובית בין מערכות החישה והתנועה (צרבלום וגרעיני הבסיס) לבין קליפת המוח (לדוגמה: LGN לראייה, VPL/VPM למגע).',
+          '<strong>ההיפותלמוס (Hypothalamus - "מתחת לתלמוס"):</strong> קטן אך קריטי להומאוסטזיס — ויסות אכילה, שתייה, טמפרטורה, הגנה ורבייה. מחובר למערכת האוטונומית ולמערכת האנדוקרינית דרך בלוטת יותרת המוח (Pituitary).'
+        ]
+      },
+      7: {
+        badge: 'חלק #7 (האפי ביותר - Rostral)',
+        region: 'Forebrain / Telencephalon',
+        title: 'המוח הגדול / ההמיספרות (Cerebrum / Cerebral Hemispheres)',
+        desc: 'החלק הגדול והמפותח ביותר במוח האדם. כולל את קליפת המוח (Cerebral Cortex) האחראית לתפיסה חושית, תנועה רצונית ותפקודים קוגניטיביים גבוהים, וכן מבנים תת-קורטיקליים ועמוקים חיוניים.',
+        subs: [
+          '<strong>קליפת המוח (Cerebral Cortex):</strong> שכבה חיצונית של חומר אפור בעלת קפלים (Gyri) וחריצים (Sulci) בשטח פנים של כ-1,100 סמ"ר.',
+          '<strong>גרעיני הבסיס (Basal Ganglia):</strong> Caudate, Putamen, Globus Pallidus — בקרת תנועה ותכנון פעולות.',
+          '<strong>היפוקמפוס (Hippocampus):</strong> זיכרון הצהרתי וניווט מרחבי.',
+          '<strong>אמיגדלה (Amygdala):</strong> עיבוד רגשי ותגובות פחד והגנה.',
+          '<strong>פקעת ההרחה (Olfactory Bulb):</strong> עיבוד ראשוני של חוש הריח.'
+        ]
+      }
+    };
+
+    // מידע עבור קבוצות אנטומיות מורכבות
+    const groupData = {
+      brainstem: {
+        badge: 'חלקים #2 + #3 + #4 יחד',
+        region: 'Brainstem (Medulla + Pons + Midbrain)',
+        title: 'גזע המוח (Brainstem)',
+        desc: 'מורכב מהמוח המוארך (Medulla), הגשר (Pons) והמוח האמצעי (Midbrain). דרכו עוברות כל המסילות העולות והיורדות, והוא מכיל גרעינים רבים לעיבוד חושי ומוטורי, נשימה, קצב לב, עוררות ומערכות מודולטוריות (דופמין, סרוטונין, נוראדרנלין).',
+        subs: [
+          '<strong>4. המוח האמצעי (Midbrain):</strong> עיבוד ראייה ושמיעה רפלקסיביים, תנועות עיניים, גרעיני דופמין.',
+          '<strong>3. הגשר (Pons):</strong> קישוריות למוח הקטן, שינה והבעות פנים.',
+          '<strong>2. המוח המוארך (Medulla):</strong> בקרת נשימה, קצב לב, לחץ דם, בליעה והצטלבות מסילות.'
+        ]
+      },
+      forebrain: {
+        badge: 'חלקים #6 + #7 יחד',
+        region: 'Forebrain / Prosencephalon',
+        title: 'המוח הקדמי (Forebrain)',
+        desc: 'החטיבה הגדולה והמורכבת ביותר במוח האדם, הכוללת את מוח הביניים (Diencephalon) ואת המוח הגדול (Cerebrum / Telencephalon). במוח האדם צירו האנטומי נטוי ב-90° ביחס לגזע המוח.',
+        subs: [
+          '<strong>7. המוח הגדול (Cerebrum):</strong> קליפת המוח (4 אונות), גרעיני הבסיס, היפוקמפוס, אמיגדלה ופקעת ההרחה.',
+          '<strong>6. מוח הביניים (Diencephalon):</strong> התלמוס (תחנת ממסר ועיבוד לקורטקס) וההיפותלמוס (מרכז ההומאוסטזיס והבקרה ההורמונלית).'
+        ]
+      },
+      hindbrain: {
+        badge: 'חלקים #2 + #3 + #5 יחד',
+        region: 'Hindbrain / Rhombencephalon',
+        title: 'המוח האחורי (Hindbrain)',
+        desc: 'החטיבה התחתונה של המוח (מעל חוט השדרה), הכוללת את המוח המוארך (Medulla), הגשר (Pons) והמוח הקטן (Cerebellum).',
+        subs: [
+          '<strong>5. המוח הקטן (Cerebellum):</strong> קואורדינציה, תזמון, שיווי משקל ולמידה מוטורית.',
+          '<strong>3. הגשר (Pons):</strong> גשר תקשורת בין הקורטקס לצרבלום וגרעיני עצבים קרניאליים.',
+          '<strong>2. המוח המוארך (Medulla):</strong> מרכזי נשימה, לב וכלי דם.'
+        ]
+      }
+    };
+
+    // עדכון העיצוב של כפתורי הרשימה לפי מערך החלקים הפעילים
+    function updateCnsListStyles(activeNumbers) {
+      for (let i = 1; i <= 7; i++) {
+        const btn = document.getElementById(`cns-btn-${i}`);
+        if (!btn) continue;
+        const isActive = activeNumbers.includes(i);
+        if (isActive) {
+          btn.classList.remove('bg-slate-100', 'dark:bg-slate-800/80', 'border-transparent', 'font-medium');
+          btn.classList.add('bg-sky-500/20', 'text-sky-600', 'dark:text-sky-300', 'border-sky-500/40', 'font-bold');
+        } else {
+          btn.classList.remove('bg-sky-500/20', 'text-sky-600', 'dark:text-sky-300', 'border-sky-500/40', 'font-bold');
+          btn.classList.add('bg-slate-100', 'dark:bg-slate-800/80', 'border-transparent', 'font-medium');
+        }
+      }
+    }
+
+    // בחירת חלק בודד מתוך ה-7
+    function selectCnsPart(num) {
+      for (let i = 1; i <= 7; i++) {
+        const el = document.getElementById(`cns-part-${i}`);
+        if (el) el.classList.toggle('svg-selected', i === num);
+      }
+      updateCnsListStyles([num]);
+
+      const data = cnsPartsData[num];
+      if (!data) return;
+      document.getElementById('cnsPartNumber').textContent = data.badge;
+      document.getElementById('cnsPartRegion').textContent = data.region;
+      document.getElementById('cnsPartTitle').textContent = data.title;
+      document.getElementById('cnsPartDesc').textContent = data.desc;
+      document.getElementById('cnsPartSublist').innerHTML = data.subs.map(s => `<li>• ${s}</li>`).join('');
+    }
+
+    // הדגשת קבוצת חלקים (לדוגמה גזע המוח 2+3+4 או המוח הקדמי 6+7)
+    function highlightGroup(numbers, groupKey) {
+      for (let i = 1; i <= 7; i++) {
+        const el = document.getElementById(`cns-part-${i}`);
+        if (el) el.classList.toggle('svg-selected', numbers.includes(i));
+      }
+      updateCnsListStyles(numbers);
+
+      const data = groupData[groupKey];
+      if (!data) return;
+      document.getElementById('cnsPartNumber').textContent = data.badge;
+      document.getElementById('cnsPartRegion').textContent = data.region;
+      document.getElementById('cnsPartTitle').textContent = data.title;
+      document.getElementById('cnsPartDesc').textContent = data.desc;
+      document.getElementById('cnsPartSublist').innerHTML = data.subs.map(s => `<li>• ${s}</li>`).join('');
+    }
+  </script>
+</body>
+</html>
