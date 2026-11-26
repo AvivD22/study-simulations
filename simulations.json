@@ -3,7 +3,13 @@
     {
       "id": "course-mwy0txan",
       "name": "נוירולוגיה",
-      "simulations": []
+      "simulations": [
+        {
+          "title": "חתך רוחב חוט השדרה",
+          "file": "course-mwy0txan/sim-mwy0varb.html",
+          "description": ""
+        }
+      ]
     }
   ]
 }
