@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מדנ"א ל-mRNA בוגר: גן, שעתוק ועיבוד</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+            <style>
+              html, body { background-color: #12141a; margin: 0; padding: 0; width: 100%; min-height: 100vh; }
+              /* הדמיה 1: מדנ"א ל-mRNA בוגר בלבד */
+              #strands-panel, #btn-toggle-strands, #btn-copy-html { display: none !important; }
+            </style>
+</head>
+<body class="antialiased selection:bg-indigo-500 selection:text-white">
+
+    <style>
+      :root {
+        --bg-main: #12141a;
+        --bg-card: #1c1f28;
+        --bg-card-hover: #242834;
+        --border-subtle: #2d3242;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+
+        --ctrl-bg: rgba(180, 83, 9, 0.26);
+        --ctrl-border: #d97706;
+        --ctrl-text: #fbbf24;
+        --ctrl-glow: rgba(245, 158, 11, 0.55);
+
+        --cds-bg: rgba(79, 70, 229, 0.44);
+        --cds-border: #6366f1;
+        --cds-text: #eef2ff;
+        --cds-glow: rgba(99, 102, 241, 0.65);
+
+        --utr-bg: rgba(79, 70, 229, 0.18);
+        --utr-border: #818cf8;
+        --utr-text: #c7d2fe;
+        --utr-glow: rgba(129, 140, 248, 0.6);
+
+        --intron-bg: rgba(71, 85, 105, 0.34);
+        --intron-border: #64748b;
+        --intron-text: #cbd5e1;
+        --intron-glow: rgba(148, 163, 184, 0.55);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: 'Heebo', sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .font-mono-bio { font-family: 'JetBrains Mono', monospace; }
+
+      .dna-grid-9 {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr 1.05fr 1.1fr 1.05fr 1.1fr 1.05fr 1fr 1.15fr;
+        gap: 4px;
+        align-items: center;
+        direction: ltr;
+      }
+
+      .bio-block {
+        position: relative;
+        height: 48px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.86rem;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.22s ease, box-shadow 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+        padding: 0 4px;
+        text-align: center;
+      }
+
+      .bio-block:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.14);
+        z-index: 10;
+      }
+
+      .bio-block:active { transform: translateY(0); }
+
+      .type-ctrl {
+        background: var(--ctrl-bg);
+        border: 1.5px solid var(--ctrl-border);
+        color: var(--ctrl-text);
+      }
+
+      .type-cds {
+        background: var(--cds-bg);
+        border: 1.5px solid var(--cds-border);
+        color: var(--cds-text);
+      }
+
+      .type-utr {
+        background: var(--utr-bg);
+        border: 1.5px dashed var(--utr-border);
+        color: var(--utr-text);
+      }
+
+      .type-intron {
+        background: var(--intron-bg);
+        border: 1.5px solid var(--intron-border);
+        color: var(--intron-text);
+      }
+
+      .codon-badge {
+        position: absolute;
+        top: -11px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 4px;
+        letter-spacing: 0.03em;
+        z-index: 12;
+        pointer-events: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .codon-start {
+        left: -14px;
+        background: #065f46;
+        border: 1px solid #34d399;
+        color: #a7f3d0;
+      }
+
+      .codon-stop {
+        right: -14px;
+        background: #881337;
+        border: 1px solid #fb7185;
+        color: #fecdd3;
+      }
+
+      body.has-selection .bio-block:not(.is-highlighted) {
+        opacity: 0.28;
+        filter: grayscale(0.35);
+      }
+
+      body.has-selection .bracket-btn:not(.is-highlighted) {
+        opacity: 0.35;
+      }
+
+      .bio-block.is-highlighted {
+        opacity: 1 !important;
+        filter: brightness(1.18) !important;
+        transform: translateY(-2px);
+        z-index: 15;
+      }
+
+      .bio-block.type-ctrl.is-highlighted {
+        box-shadow: 0 0 0 2px #fbbf24, 0 0 18px var(--ctrl-glow);
+      }
+
+      .bio-block.type-cds.is-highlighted {
+        box-shadow: 0 0 0 2px #a5b4fc, 0 0 18px var(--cds-glow);
+      }
+
+      .bio-block.type-utr.is-highlighted {
+        box-shadow: 0 0 0 2px #c7d2fe, 0 0 18px var(--utr-glow);
+      }
+
+      .bio-block.type-intron.is-highlighted {
+        box-shadow: 0 0 0 2px #e2e8f0, 0 0 16px var(--intron-glow);
+      }
+
+      .bracket-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        color: #a5b4fc;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 6px;
+        transition: all 0.22s ease;
+        width: 100%;
+      }
+
+      .bracket-btn:hover {
+        background: rgba(99, 102, 241, 0.12);
+        color: #e0e7ff;
+      }
+
+      .bracket-btn.is-highlighted {
+        opacity: 1 !important;
+        color: #ffffff;
+        background: rgba(99, 102, 241, 0.22);
+        box-shadow: 0 0 14px rgba(99, 102, 241, 0.35);
+      }
+
+      .bracket-top-line {
+        width: 100%;
+        height: 7px;
+        border-top: 1.5px solid currentColor;
+        border-left: 1.5px solid currentColor;
+        border-right: 1.5px solid currentColor;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        margin-top: 3px;
+      }
+
+      .bracket-bottom-line {
+        width: 100%;
+        height: 7px;
+        border-bottom: 1.5px solid currentColor;
+        border-left: 1.5px solid currentColor;
+        border-right: 1.5px solid currentColor;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        margin-bottom: 3px;
+      }
+
+      .excised-pill {
+        height: 36px;
+        border-radius: 7px;
+        border: 1.5px dashed #64748b;
+        background: rgba(51, 65, 85, 0.22);
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        transition: all 0.3s ease;
+      }
+
+      .excised-pill.is-highlighted {
+        border-color: #cbd5e1;
+        color: #f8fafc;
+        background: rgba(71, 85, 105, 0.45);
+        box-shadow: 0 0 12px rgba(148, 163, 184, 0.4);
+      }
+
+      .stage-container {
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+
+      .stage-hidden {
+        opacity: 0.14;
+        transform: translateY(6px);
+        pointer-events: none;
+      }
+
+      .rnapol-marker {
+        position: absolute;
+        top: -18px;
+        left: 12%;
+        width: 34px;
+        height: 22px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: 1.5px solid #a7f3d0;
+        color: #ecfdf5;
+        font-size: 0.62rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.75);
+        z-index: 25;
+        opacity: 0;
+        pointer-events: none;
+        transition: left 1.7s cubic-bezier(0.35, 0, 0.25, 1), opacity 0.25s ease;
+      }
+
+      .ribosome-rig {
+        position: absolute;
+        top: -34px;
+        left: 13%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 30;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .ribosome-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .ribo-large {
+        width: 44px;
+        height: 18px;
+        border-radius: 14px 14px 6px 6px;
+        background: linear-gradient(135deg, #06b6d4, #0284c7);
+        border: 1.5px solid #bae6fd;
+        box-shadow: 0 0 14px rgba(6, 182, 212, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.58rem;
+        font-weight: 700;
+        color: #f0f9ff;
+      }
+
+      .ribo-small {
+        width: 34px;
+        height: 10px;
+        border-radius: 4px 4px 10px 10px;
+        background: rgba(14, 165, 233, 0.85);
+        border: 1px solid #7dd3fc;
+      }
+
+      .polypeptide-chain {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin-bottom: 3px;
+        min-height: 10px;
+      }
+
+      .aa-bead {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        animation: popBead 0.22s ease-out;
+      }
+
+      @keyframes popBead {
+        0% { transform: scale(0); }
+        80% { transform: scale(1.25); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes pulseArrow {
+        0%, 100% { transform: translateY(0); opacity: 0.85; }
+        50% { transform: translateY(4px); opacity: 1; }
+      }
+
+      .arrow-animated { animation: pulseArrow 1.8s infinite ease-in-out; }
+
+      @keyframes scissorSnip {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); border-color: #f43f5e; color: #fda4af; }
+      }
+
+      .snip-active { animation: scissorSnip 0.55s ease-in-out 2; }
+
+      .pipeline-scroll { overflow-x: auto; padding-bottom: 8px; }
+      .pipeline-inner { min-width: 720px; }
+
+      .dir-ltr-bio {
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+      }
+
+      .dir-pill-53 {
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        padding: 1px 7px;
+        margin: 1px 3px;
+        line-height: 1.3;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(245, 158, 11, 0.18);
+        border: 1px solid rgba(251, 191, 36, 0.45);
+        color: #fde68a;
+        vertical-align: middle;
+      }
+
+      .dir-pill-35 {
+        direction: ltr;
+        unicode-bidi: isolate;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        padding: 1px 7px;
+        margin: 1px 3px;
+        line-height: 1.3;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(16, 185, 129, 0.18);
+        border: 1px solid rgba(52, 211, 153, 0.45);
+        color: #a7f3d0;
+        vertical-align: middle;
+      }
+
+      .codon-group-card {
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(255, 255, 255, 0.02);
+        padding: 6px 3px;
+        min-width: 0;
+        transition: all 0.25s ease;
+      }
+
+      .codon-group-card.is-ribo-codon {
+        background: rgba(6, 182, 212, 0.14);
+        border-color: #22d3ee;
+        box-shadow: 0 0 18px rgba(6, 182, 212, 0.28);
+      }
+
+      .nuc-cell {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 25px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+      }
+
+      .nuc-cell:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.18);
+      }
+
+      .nuc-template.is-pol-active {
+        background: rgba(16, 185, 129, 0.42) !important;
+        border: 2px solid #34d399 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.75);
+        transform: scale(1.08);
+        z-index: 15;
+      }
+
+      .pol-cursor-tag {
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.56rem;
+        font-weight: 800;
+        padding: 0 4px;
+        border-radius: 4px;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.7);
+        pointer-events: none;
+        z-index: 20;
+      }
+
+      .nuc-mrna.is-newly-added {
+        background: rgba(99, 102, 241, 0.55) !important;
+        border: 2px solid #a5b4fc !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 16px rgba(129, 140, 248, 0.8);
+        transform: scale(1.08);
+        z-index: 15;
+      }
+
+      .nuc-mrna.is-untranscribed {
+        background: rgba(30, 41, 59, 0.35) !important;
+        border: 1px dashed rgba(100, 116, 139, 0.55) !important;
+        color: #475569 !important;
+      }
+
+      .pair-bridge-cell {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 23px;
+        height: 22px;
+        flex-shrink: 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #475569;
+        transition: all 0.2s ease;
+      }
+
+      .pair-bridge-cell.is-paired-done { color: #6ee7b7; }
+
+      .pair-bridge-cell.is-pairing-now {
+        color: #34d399 !important;
+        transform: scale(1.25);
+        text-shadow: 0 0 10px rgba(52, 211, 153, 0.95);
+      }
+
+      .mode-coding-match .base-t-coding,
+      .mode-coding-match .base-u-mrna {
+        background: rgba(245, 158, 11, 0.36) !important;
+        border: 1.5px solid #fbbf24 !important;
+        color: #fef3c7 !important;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
+      }
+
+      .mode-coding-match .row-template-wrap,
+      .mode-coding-match .row-bridge-wrap {
+        opacity: 0.26;
+      }
+
+      .mode-template-pair .row-coding-wrap,
+      .mode-template-pair .row-dna-bonds {
+        opacity: 0.26;
+      }
+
+      .mode-template-pair .pair-bridge-cell.is-paired-done {
+        color: #34d399 !important;
+        text-shadow: 0 0 8px rgba(52, 211, 153, 0.65);
+      }
+    </style>
+
+    <div class="w-full px-4 sm:px-8 py-4 sm:py-6">
+
+      <!-- כותרת ראשית וכפתורי הפעלה -->
+      <header id="sim1-header" class="mb-6 flex flex-col gap-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              מדנ"א ל-mRNA בוגר: גן, שעתוק ועיבוד
+            </h1>
+            <p class="text-sm sm:text-base text-slate-300 mt-1">
+              לחצו על כל חלק או על סוגרי האקסונים והגן כדי להדגיש אותו בכל שלושת השלבים, או הפעילו את האנימציה שלב-אחר-שלב.
+            </p>
+          </div>
+        </div>
+
+        <!-- סרגל כפתורי אינטראקציה ואנימציה -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button id="btn-play-all" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold text-sm shadow-lg shadow-indigo-950/50 transition cursor-pointer">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
+            </svg>
+            <span>הפעל אנימציה מלאה</span>
+          </button>
+
+          <button id="btn-ribosome" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-200 font-semibold text-sm transition cursor-pointer">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <span>הצג סריקת ריבוזום (תרגום)</span>
+          </button>
+
+          <button id="btn-toggle-strands" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-950/70 hover:bg-amber-900/80 border border-amber-500/50 text-amber-200 font-semibold text-sm transition cursor-pointer">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            <span>גדיל מקודד מול תבנית (DNA)</span>
+          </button>
+
+          <button id="btn-reset" type="button" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#1c1f28] hover:bg-[#262a36] border border-[#2d3242] text-slate-300 font-medium text-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <span>איפוס תצוגה</span>
+          </button>
+
+          <button id="btn-copy-html" type="button" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#1c1f28] hover:bg-[#262a36] border border-[#2d3242] text-slate-300 font-medium text-sm transition cursor-pointer">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            <span id="copy-html-label">העתק קוד HTML</span>
+          </button>
+
+          <span id="status-badge" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-slate-800/90 border border-slate-700 text-slate-300 mr-auto">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="status-text">תצוגה מלאה פעילה</span>
+          </span>
+        </div>
+      </header>
+
+      <!-- אזור ההדמיה המולקולרית המרכזי (הדמיה 1) -->
+      <main id="sim1-main" class="bg-[#161922] border border-[#262b38] rounded-2xl p-4 sm:p-6 shadow-2xl">
+        <div class="pipeline-scroll">
+          <div class="pipeline-inner">
+
+            <!-- שלב 1: דנ"א -->
+            <section id="stage-1" class="stage-container">
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs font-bold">1</span>
+                  שלב 1: דנ"א (DNA)
+                </h2>
+                <span class="text-xs text-slate-400">לחצו על סוגרי האקסונים או הגן להדגשה</span>
+              </div>
+
+              <!-- שורת סוגרי אקסונים מעל הדנ"א -->
+              <div class="flex items-end gap-2 mb-1.5">
+                <span class="w-6 text-center text-xs font-mono-bio text-transparent select-none">5'</span>
+                <div class="dna-grid-9 flex-1">
+                  <div></div>
+                  <div style="grid-column: 2 / 4;">
+                    <button type="button" class="bracket-btn" data-select="exon1">
+                      <span class="text-xs font-semibold">אקסון 1</span>
+                      <div class="bracket-top-line"></div>
+                    </button>
+                  </div>
+                  <div></div>
+                  <div style="grid-column: 5 / 6;">
+                    <button type="button" class="bracket-btn" data-select="exon2">
+                      <span class="text-xs font-semibold">אקסון 2</span>
+                      <div class="bracket-top-line"></div>
+                    </button>
+                  </div>
+                  <div></div>
+                  <div style="grid-column: 7 / 9;">
+                    <button type="button" class="bracket-btn" data-select="exon3">
+                      <span class="text-xs font-semibold">אקסון 3</span>
+                      <div class="bracket-top-line"></div>
+                    </button>
+                  </div>
+                  <div></div>
+                </div>
+                <span class="w-6 text-center text-xs font-mono-bio text-transparent select-none">3'</span>
+              </div>
+
+              <!-- גדיל הדנ"א -->
+              <div class="relative flex items-center gap-2">
+                <div id="rnapol-marker" class="rnapol-marker font-mono-bio">Pol II</div>
+                <span class="w-6 text-center text-sm font-mono-bio font-bold text-slate-400">5'</span>
+
+                <div class="dna-grid-9 flex-1">
+                  <div class="bio-block type-ctrl" data-id="promoter" data-cat="ctrl" data-groups="promoter">פרומוטור</div>
+                  <div class="bio-block type-utr font-mono-bio" data-id="utr5" data-cat="utr" data-groups="utr5 exon1 gene">5' UTR</div>
+                  <div class="bio-block type-cds font-mono-bio" data-id="cds1" data-cat="cds" data-groups="cds1 exon1 gene">
+                    <span class="codon-badge codon-start" title="קודון התחלה (Start Codon)">ATG</span>
+                    CDS
+                  </div>
+                  <div class="bio-block type-intron" data-id="intron1" data-cat="intron" data-groups="intron1 gene">אינטרון 1</div>
+                  <div class="bio-block type-cds font-mono-bio" data-id="cds2" data-cat="cds" data-groups="cds2 exon2 gene">CDS</div>
+                  <div class="bio-block type-intron" data-id="intron2" data-cat="intron" data-groups="intron2 gene">אינטרון 2</div>
+                  <div class="bio-block type-cds font-mono-bio" data-id="cds3" data-cat="cds" data-groups="cds3 exon3 gene">
+                    CDS
+                    <span class="codon-badge codon-stop" title="קודון סיום (Stop Codon)">TGA</span>
+                  </div>
+                  <div class="bio-block type-utr font-mono-bio" data-id="utr3" data-cat="utr" data-groups="utr3 exon3 gene">3' UTR</div>
+                  <div class="bio-block type-ctrl" data-id="terminator" data-cat="ctrl" data-groups="terminator">טרמינטור</div>
+                </div>
+
+                <span class="w-6 text-center text-sm font-mono-bio font-bold text-slate-400">3'</span>
+              </div>
+
+              <!-- סוגר תחתון: הגן -->
+              <div class="flex items-start gap-2 mt-1.5">
+                <span class="w-6 text-center text-xs font-mono-bio text-transparent select-none">5'</span>
+                <div class="dna-grid-9 flex-1">
+                  <div></div>
+                  <div style="grid-column: 2 / 9;">
+                    <button type="button" class="bracket-btn text-slate-300" data-select="gene">
+                      <div class="bracket-bottom-line"></div>
+                      <span class="text-xs font-semibold">הגן (יחידת התעתוק: מנקודת +1 ועד סוף 3' UTR)</span>
+                    </button>
+                  </div>
+                  <div></div>
+                </div>
+                <span class="w-6 text-center text-xs font-mono-bio text-transparent select-none">3'</span>
+              </div>
+            </section>
+
+            <!-- מעבר 1 -> 2: תעתוק -->
+            <div id="transition-1-2" class="stage-container my-3 flex items-center justify-center gap-3">
+              <div class="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-800/70 border border-slate-700/80">
+                <svg class="w-5 h-5 text-emerald-400 arrow-animated" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v15m0 0l-5-5m5 5l5-5"></path>
+                </svg>
+                <span class="text-xs sm:text-sm font-semibold text-slate-200">
+                  תעתוק על ידי RNA פולימראז II
+                </span>
+              </div>
+            </div>
+
+            <!-- שלב 2: תעתיק ראשוני (pre-mRNA) -->
+            <section id="stage-2" class="stage-container">
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 text-xs font-bold">2</span>
+                  שלב 2: תעתיק ראשוני (pre-mRNA)
+                </h2>
+                <span class="text-xs text-slate-400">העתק רציף הכולל UTRs, אקסונים ואינטרונים (T מוחלף ב-U)</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="w-6 text-center text-sm font-mono-bio text-transparent select-none">5'</span>
+                <div class="dna-grid-9 flex-1">
+                  <div class="flex items-center justify-end gap-2 pr-1 text-slate-500 select-none">
+                    <span class="text-xs">לא מתועתק</span>
+                    <span class="text-sm font-mono-bio font-bold text-slate-400">5'</span>
+                  </div>
+                  <div class="bio-block type-utr font-mono-bio" data-id="utr5" data-cat="utr" data-groups="utr5 exon1 gene">5' UTR</div>
+                  <div class="bio-block type-cds font-mono-bio" data-id="cds1" data-cat="cds" data-groups="cds1 exon1 gene">
+                    <span class="codon-badge codon-start" title="קודון התחלה ברנ״א">AUG</span>
+                    CDS
+                  </div>
+                  <div class="bio-block type-intron" data-id="intron1" data-cat="intron" data-groups="intron1 gene">אינטרון 1</div>
+                  <div class="bio-block type-cds font-mono-bio" data-id="cds2" data-cat="cds" data-groups="cds2 exon2 gene">CDS</div>
+                  <div class="bio-block type-intron" data-id="intron2" data-cat="intron" data-groups="intron2 gene">אינטרון 2</div>
+                  <div class="bio-block type-cds font-mono-bio" data-id="cds3" data-cat="cds" data-groups="cds3 exon3 gene">
+                    CDS
+                    <span class="codon-badge codon-stop" title="קודון סיום ברנ״א">UGA</span>
+                  </div>
+                  <div class="bio-block type-utr font-mono-bio" data-id="utr3" data-cat="utr" data-groups="utr3 exon3 gene">3' UTR</div>
+                  <div class="flex items-center justify-start gap-2 pl-1 text-slate-500 select-none">
+                    <span class="text-sm font-mono-bio font-bold text-slate-400">3'</span>
+                    <span class="text-xs">לא מתועתק</span>
+                  </div>
+                </div>
+                <span class="w-6 text-center text-sm font-mono-bio text-transparent select-none">3'</span>
+              </div>
+            </section>
+
+            <!-- מעבר 2 -> 3: שחבור, כיפוי וזנב poly(A) -->
+            <div id="transition-2-3" class="stage-container my-3">
+              <div class="flex items-center gap-2">
+                <span class="w-6 select-none"></span>
+                <div class="dna-grid-9 flex-1">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div id="excised-1" class="excised-pill cursor-pointer" data-select="intron1">✂️ נחתך</div>
+                  <div class="flex flex-col items-center justify-center text-center">
+                    <svg class="w-5 h-5 text-indigo-400 arrow-animated" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v15m0 0l-5-5m5 5l5-5"></path>
+                    </svg>
+                  </div>
+                  <div id="excised-2" class="excised-pill cursor-pointer" data-select="intron2">✂️ נחתך</div>
+                  <div style="grid-column: 7 / 10;" class="flex items-center justify-start pr-2">
+                    <span class="text-xs sm:text-sm font-semibold text-slate-300">
+                      שחבור (Splicing), כיפוי וזנב poly(A)
+                    </span>
+                  </div>
+                </div>
+                <span class="w-6 select-none"></span>
+              </div>
+            </div>
+
+            <!-- שלב 3: mRNA בוגר -->
+            <section id="stage-3" class="stage-container">
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-xs font-bold">3</span>
+                  שלב 3: mRNA בוגר (Mature mRNA)
+                </h2>
+                <span id="ribo-status-label" class="text-xs text-slate-400">מוכן ליציאה לציטופלזמה ולתרגום בריבוזום</span>
+              </div>
+
+              <div class="relative pt-2 flex items-center justify-center">
+                <div id="mature-mrna-track" dir="ltr" class="relative flex items-center justify-center gap-1.5 w-full max-w-3xl">
+                  <div id="ribosome-rig" class="ribosome-rig">
+                    <div id="polypeptide-chain" class="polypeptide-chain"></div>
+                    <div class="ribosome-body">
+                      <div class="ribo-large font-mono-bio">60S</div>
+                      <div class="ribo-small"></div>
+                    </div>
+                  </div>
+
+                  <span class="text-sm font-mono-bio font-bold text-slate-400 mr-1">5'</span>
+
+                  <div class="bio-block type-ctrl font-mono-bio flex-1 max-w-[78px]" data-id="cap" data-cat="ctrl" data-groups="cap">5' cap</div>
+                  <div id="mature-utr5" class="bio-block type-utr font-mono-bio flex-1 max-w-[96px]" data-id="utr5" data-cat="utr" data-groups="utr5 exon1 gene">5' UTR</div>
+
+                  <div id="mature-cds-wrapper" class="flex items-center flex-[3] max-w-[330px] gap-[2px]">
+                    <div id="mature-cds1" class="bio-block type-cds font-mono-bio flex-1 rounded-r-none" data-id="cds1" data-cat="cds" data-groups="cds1 exon1 gene">
+                      <span class="codon-badge codon-start">AUG</span>
+                      CDS
+                    </div>
+                    <div id="mature-cds2" class="bio-block type-cds font-mono-bio flex-1 rounded-none" data-id="cds2" data-cat="cds" data-groups="cds2 exon2 gene">CDS</div>
+                    <div id="mature-cds3" class="bio-block type-cds font-mono-bio flex-1 rounded-l-none" data-id="cds3" data-cat="cds" data-groups="cds3 exon3 gene">
+                      CDS
+                      <span class="codon-badge codon-stop">UGA</span>
+                    </div>
+                  </div>
+
+                  <div id="mature-utr3" class="bio-block type-utr font-mono-bio flex-1 max-w-[96px]" data-id="utr3" data-cat="utr" data-groups="utr3 exon3 gene">3' UTR</div>
+                  <div class="bio-block type-ctrl font-mono-bio flex-1 max-w-[88px]" data-id="polya" data-cat="ctrl" data-groups="polya">poly(A)</div>
+
+                  <span class="text-sm font-mono-bio font-bold text-slate-400 ml-1">3'</span>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        <!-- מקרא צבעים אינטראקטיבי -->
+        <div class="mt-6 pt-4 border-t border-[#262b38] flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs sm:text-sm">
+          <button type="button" data-cat-filter="cds" class="legend-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-800/80 text-slate-200 transition cursor-pointer">
+            <span class="w-4 h-4 rounded bg-indigo-600/50 border border-indigo-400 inline-block"></span>
+            <span>CDS, קטע מקודד</span>
+          </button>
+          <button type="button" data-cat-filter="utr" class="legend-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-800/80 text-slate-200 transition cursor-pointer">
+            <span class="w-4 h-4 rounded bg-indigo-500/20 border border-dashed border-indigo-300 inline-block"></span>
+            <span>UTR, מתועתק ולא מתורגם</span>
+          </button>
+          <button type="button" data-cat-filter="intron" class="legend-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-800/80 text-slate-200 transition cursor-pointer">
+            <span class="w-4 h-4 rounded bg-slate-600/40 border border-slate-400 inline-block"></span>
+            <span>אינטרון</span>
+          </button>
+          <button type="button" data-cat-filter="ctrl" class="legend-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-800/80 text-slate-200 transition cursor-pointer">
+            <span class="w-4 h-4 rounded bg-amber-600/35 border border-amber-400 inline-block"></span>
+            <span>בקרה, סימון ועיבוד</span>
+          </button>
+        </div>
+      </main>
+
+      <!-- מעבדת שעתוק משלים: גדיל מקודד מול תבנית (הדמיה 2) -->
+      <section id="strands-panel" class="mt-5 w-full bg-[#161922] border border-emerald-500/35 rounded-2xl p-4 sm:p-6 shadow-2xl transition-all">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 pb-4 border-b border-[#262b38]">
+          <div>
+            <div class="flex flex-wrap items-center gap-2.5 mb-1">
+              <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 whitespace-nowrap">
+                מעבדת שעתוק משלים (אות-אחר-אות)
+              </span>
+              <h2 class="text-lg sm:text-xl font-extrabold text-white leading-snug">
+                איך עוברים מגדיל התבנית (<bdi dir="ltr" class="dir-pill-35">3' → 5'</bdi>) לגדיל ה-mRNA (<bdi dir="ltr" class="dir-pill-53">5' → 3'</bdi>)?
+              </h2>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 mt-2.5 leading-7">
+              שני גדילי הדנ"א הפוכים בכיווניותם (<strong>אנטי-מקבילים</strong>):
+              <span class="text-amber-300 font-semibold">הגדיל המקודד</span> הוא בכיוון <bdi dir="ltr" class="dir-pill-53">5' → 3'</bdi> (משמאל לימין), ואילו
+              <span class="text-emerald-300 font-semibold">גדיל התבנית</span> הוא בכיוון ההפוך <bdi dir="ltr" class="dir-pill-35">3' → 5'</bdi> (משמאל לימין).
+              האנזים <strong>RNA פולימראז II</strong> נע על גדיל התבנית מכיוון <bdi dir="ltr" class="dir-ltr-bio text-emerald-300 font-bold">3'</bdi> לכיוון <bdi dir="ltr" class="dir-ltr-bio text-emerald-300 font-bold">5'</bdi> ומרכיב מולו אות-אחר-אות נוקלאוטידים משלימים (<bdi dir="ltr" class="dir-ltr-bio">T=A, A=U, C≡G, G≡C</bdi>) ליצירת mRNA בכיוון <bdi dir="ltr" class="dir-pill-53">5' → 3'</bdi> — ולכן התוצאה זהה לגדיל המקודד (עם <strong>U</strong> במקום <strong>T</strong>).
+            </p>
+          </div>
+
+          <button id="btn-close-strands" type="button" class="self-start shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 text-xs font-semibold transition cursor-pointer whitespace-nowrap">
+            <span>סגור חלונית ✕</span>
+          </button>
+        </div>
+
+        <!-- סרגל שליטה באנימציית אות-אחר-אות וסינונים -->
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-play-letter-by-letter" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-md shadow-emerald-950/50 transition cursor-pointer whitespace-nowrap">
+              <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
+              </svg>
+              <span id="btn-play-lbl-text">הפעל שעתוק אות-אחר-אות (Pol II)</span>
+            </button>
+
+            <div class="inline-flex items-center rounded-xl bg-[#1c1f28] border border-[#2d3242] p-0.5 whitespace-nowrap">
+              <button id="btn-step-prev" type="button" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700/80 text-slate-200 text-xs font-semibold transition cursor-pointer whitespace-nowrap">
+                ⏮ אות קודמת
+              </button>
+              <span class="text-slate-600 px-0.5">|</span>
+              <button id="btn-step-next" type="button" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-700/80 text-emerald-300 text-xs font-semibold transition cursor-pointer whitespace-nowrap">
+                אות הבאה ⏭
+              </button>
+            </div>
+
+            <button id="btn-toggle-speed" type="button" class="px-3 py-2 rounded-xl bg-[#1c1f28] hover:bg-[#262a36] border border-[#2d3242] text-slate-300 text-xs font-medium transition cursor-pointer whitespace-nowrap">
+              מהירות: <strong id="speed-label" class="text-white">רגילה</strong>
+            </button>
+
+            <button id="btn-reset-strands-standalone" type="button" class="hidden px-3 py-2 rounded-xl bg-[#1c1f28] hover:bg-[#262a36] border border-[#2d3242] text-slate-300 text-xs font-medium transition cursor-pointer whitespace-nowrap">
+              איפוס תצוגה
+            </button>
+          </div>
+
+          <!-- כפתורי הדגשה להשוואת הגדילים -->
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <button type="button" data-strand-mode="all" class="strand-mode-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold transition cursor-pointer whitespace-nowrap">
+              תצוגה מלאה
+            </button>
+            <button type="button" data-strand-mode="template-pair" class="strand-mode-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-200 border border-emerald-500/35 font-medium transition cursor-pointer whitespace-nowrap">
+              זיווג משלים (תבנית <bdi dir="ltr" class="dir-ltr-bio">3'→5'</bdi> ⟷ mRNA <bdi dir="ltr" class="dir-ltr-bio">5'→3'</bdi>)
+            </button>
+            <button type="button" data-strand-mode="coding-match" class="strand-mode-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-500/35 font-medium transition cursor-pointer whitespace-nowrap">
+              זהות רצף (מקודד <bdi dir="ltr" class="dir-ltr-bio">5'→3'</bdi> ≡ mRNA <bdi dir="ltr" class="dir-ltr-bio">5'→3'</bdi>)
+            </button>
+          </div>
+        </div>
+
+        <!-- לוח 4 השכבות המיושרות -->
+        <div id="strands-sequence-board" class="mt-4 bg-[#12141a] border border-[#2d3242] rounded-xl p-3 sm:p-4 overflow-x-auto">
+          <div class="min-w-[1060px] w-full">
+            <div class="grid grid-cols-[220px_1fr] gap-3 items-stretch">
+              <div class="flex flex-col justify-between py-1.5 text-right select-none gap-1">
+                <div class="min-h-[76px] flex flex-col justify-end pb-1 leading-snug">
+                  <span class="text-xs font-bold text-amber-300">1. גדיל מקודד (Coding DNA)</span>
+                  <span class="text-[11px] text-slate-400 mt-1">כיוון <bdi dir="ltr" class="dir-ltr-bio text-amber-200">5' → 3'</bdi> • אינו נקרא ע"י Pol II</span>
+                </div>
+                <div class="min-h-[22px] flex items-center text-[10.5px] text-slate-500">קשרי מימן ב-DNA הדו-גדילי</div>
+                <div class="min-h-[72px] flex flex-col justify-center leading-snug">
+                  <span class="text-xs font-bold text-emerald-300">2. גדיל תבנית (Template DNA)</span>
+                  <span class="text-[11px] text-emerald-400/90 mt-1">כיוון <bdi dir="ltr" class="dir-ltr-bio text-emerald-200">3' → 5'</bdi> • נקרא אות-אות ע"י Pol II</span>
+                </div>
+                <div class="min-h-[30px] flex items-center text-[11px] text-emerald-300 font-semibold">
+                  <span>↓ זיווג משלים (<bdi dir="ltr" class="dir-ltr-bio">T=A, A=U, C≡G</bdi>)</span>
+                </div>
+                <div class="min-h-[66px] flex flex-col justify-center leading-snug">
+                  <span class="text-xs font-bold text-indigo-300">3. מולקולת mRNA נבנית</span>
+                  <span class="text-[11px] text-indigo-300/85 mt-1">נבנית בכיוון <bdi dir="ltr" class="dir-ltr-bio text-indigo-200">5' → 3'</bdi> (U במקום T)</span>
+                </div>
+                <div class="min-h-[28px] flex items-center text-[11px] text-cyan-400 font-semibold">
+                  <span>↓ תרגום קודונים בריבוזום</span>
+                </div>
+                <div class="min-h-[56px] flex flex-col justify-center leading-snug">
+                  <span class="text-xs font-bold text-cyan-300">4. חומצות אמינו (חלבון)</span>
+                  <span class="text-[11px] text-slate-400 mt-1">מתורגם רק בין <bdi dir="ltr" class="dir-ltr-bio">AUG</bdi> ל-<bdi dir="ltr" class="dir-ltr-bio">UGA</bdi></span>
+                </div>
+              </div>
+
+              <div dir="ltr" class="grid grid-cols-[22px_1fr_22px] gap-1.5 items-stretch">
+                <div class="flex flex-col justify-between py-1.5 text-center font-mono-bio text-xs font-bold select-none gap-1">
+                  <div class="min-h-[76px] flex items-end justify-center pb-2 text-amber-400">5'</div>
+                  <div class="min-h-[22px]"></div>
+                  <div class="min-h-[72px] flex items-center justify-center pt-3 text-emerald-400">3'</div>
+                  <div class="min-h-[30px]"></div>
+                  <div class="min-h-[66px] flex items-center justify-center text-indigo-400">5'</div>
+                  <div class="min-h-[28px]"></div>
+                  <div class="min-h-[56px] flex items-center justify-center text-cyan-400">N-</div>
+                </div>
+
+                <div id="triplets-container" class="grid grid-cols-8 gap-1"></div>
+
+                <div class="flex flex-col justify-between py-1.5 text-center font-mono-bio text-xs font-bold select-none gap-1">
+                  <div class="min-h-[76px] flex items-end justify-center pb-2 text-amber-400">3'</div>
+                  <div class="min-h-[22px]"></div>
+                  <div class="min-h-[72px] flex items-center justify-center pt-3 text-emerald-400">5'</div>
+                  <div class="min-h-[30px]"></div>
+                  <div class="min-h-[66px] flex items-center justify-center text-indigo-400">3'</div>
+                  <div class="min-h-[28px]"></div>
+                  <div class="min-h-[56px] flex items-center justify-center text-cyan-400">-C</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- תיבת הסבר חיה לצעד הנוכחי -->
+        <div id="letter-inspector-box" class="mt-3.5 p-4 rounded-xl bg-[#1c1f28] border border-emerald-500/30 text-xs sm:text-sm text-slate-200 leading-7">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <span class="font-bold text-emerald-300">🔬 לחצו על "הפעל שעתוק אות-אחר-אות (Pol II)" או על כל אות ברצף:</span>
+            <span class="font-mono-bio text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">24 נוקלאוטידים • 8 שלשות</span>
+          </div>
+          <p class="text-slate-300 leading-7">
+            תוכלו לראות כיצד <strong>RNA פולימראז II</strong> מתקדם אות-אחר-אות על גבי <strong>גדיל התבנית</strong> (<bdi dir="ltr" class="dir-ltr-bio text-emerald-300 font-semibold">3' → 5'</bdi>), מזווג מול כל בסיס ריבונוקלאוטיד משלים בקצה ה-<bdi dir="ltr" class="dir-ltr-bio font-semibold">3'-OH</bdi> של ה-mRNA הנבנה, ויוצר רצף <bdi dir="ltr" class="dir-ltr-bio text-indigo-300 font-semibold">5' → 3'</bdi> שזהה לגדיל המקודד (פרט להחלפת <strong>T</strong> ב-<strong>U</strong>).
+          </p>
+        </div>
+
+        <!-- כרטיסי סיכום השוואתיים -->
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div class="p-4 rounded-xl bg-amber-950/20 border border-amber-500/35">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <h3 class="font-bold text-amber-300 text-sm sm:text-base leading-normal">הגדיל המקודד (Coding / Sense Strand)</h3>
+              <bdi dir="ltr" class="dir-pill-53">5' → 3'</bdi>
+            </div>
+            <ul class="text-xs sm:text-sm text-slate-300 space-y-2 leading-6 list-disc list-inside">
+              <li><strong>מדוע נקרא "מקודד"?</strong> כי רצף הנוקלאוטידים שלו (<bdi dir="ltr" class="dir-ltr-bio">5' → 3'</bdi>) <strong>זהה לרצף הקודונים של ה-mRNA</strong> (למשל <bdi dir="ltr" class="dir-ltr-bio text-amber-200">5'-ATG-3'</bdi> בדנ"א ← <bdi dir="ltr" class="dir-ltr-bio text-indigo-200">5'-AUG-3'</bdi> ב-mRNA).</li>
+              <li><strong>בזמן השעתוק:</strong> האנזים אינו קורא גדיל זה, אך בגלל שהוא משלים לגדיל התבנית — ה-mRNA שנבנה מול התבנית יוצא זהה לגדיל המקודד (עם <strong>U</strong> במקום <strong>T</strong>).</li>
+            </ul>
+          </div>
+
+          <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/35">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <h3 class="font-bold text-emerald-300 text-sm sm:text-base leading-normal">גדיל התבנית (Template / Antisense Strand)</h3>
+              <bdi dir="ltr" class="dir-pill-35">3' → 5'</bdi>
+            </div>
+            <ul class="text-xs sm:text-sm text-slate-300 space-y-2 leading-6 list-disc list-inside">
+              <li><strong>מדוע כיוונו <bdi dir="ltr" class="dir-ltr-bio text-emerald-200">3' → 5'</bdi>?</strong> כי RNA פולימראז II מסוגל להוסיף נוקלאוטידים חדשים רק לקצה ה-<bdi dir="ltr" class="dir-ltr-bio">3'</bdi> של הרנ"א (בנייה ב-<bdi dir="ltr" class="dir-ltr-bio">5' → 3'</bdi>), ולכן עליו לקרוא את התבנית בכיוון ההפוך (<bdi dir="ltr" class="dir-ltr-bio">3' → 5'</bdi>).</li>
+              <li><strong>כלל הזיווג המשלים:</strong> מול <bdi dir="ltr" class="dir-ltr-bio text-emerald-200">T</bdi> בתבנית מציב <bdi dir="ltr" class="dir-ltr-bio text-indigo-200">A</bdi>; מול <bdi dir="ltr" class="dir-ltr-bio text-emerald-200">A</bdi> מציב <bdi dir="ltr" class="dir-ltr-bio text-indigo-200">U</bdi>; מול <bdi dir="ltr" class="dir-ltr-bio text-emerald-200">C</bdi> מציב <bdi dir="ltr" class="dir-ltr-bio text-indigo-200">G</bdi>; ומול <bdi dir="ltr" class="dir-ltr-bio text-emerald-200">G</bdi> מציב <bdi dir="ltr" class="dir-ltr-bio text-indigo-200">C</bdi>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- כרטיס הסבר דינמי בתחתית -->
+      <footer id="info-card" class="mt-5 bg-[#1c1f28] border border-[#2d3242] rounded-2xl p-5 shadow-lg transition-all">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2.5 mb-1.5">
+              <span id="info-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-400/40 text-indigo-300">
+                מדריך אינטראקטיבי
+              </span>
+              <h3 id="info-title" class="text-base sm:text-lg font-bold text-white">
+                איך לקרוא את האיור
+              </h3>
+            </div>
+            <p id="info-desc" class="text-sm sm:text-base text-slate-300 leading-relaxed">
+              הדנ"א עובר תעתוק ל-pre-mRNA, ולאחר מכן שחבור (Splicing), כיפוי בקצה ה-'5 והוספת זנב poly(A) בקצה ה-'3 הופכים אותו ל-mRNA בוגר.
+              <strong>לחצו על כל חלק</strong>, על <strong>סוגרי האקסון והגן</strong>, או על <strong>פריטי המקרא</strong> כדי להדגיש אותם בכל שלושת השלבים ולקרוא על תפקידם. לחיצה נוספת מבטלת את ההדגשה.
+            </p>
+          </div>
+
+          <button id="btn-clear-selection" type="button" class="hidden shrink-0 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold text-slate-200 transition cursor-pointer">
+            נקה בחירה ✕
+          </button>
+        </div>
+      </footer>
+
+    </div>
+
+    <script>
+      const BIO_INFO = {
+        default: {
+          badge: 'מדריך אינטראקטיבי',
+          badgeClass: 'bg-indigo-500/20 border-indigo-400/40 text-indigo-300',
+          title: 'איך לקרוא את האיור',
+          desc: 'הדנ"א עובר תעתוק ל-pre-mRNA, ולאחר מכן שחבור (Splicing), כיפוי בקצה ה-\'5 והוספת זנב poly(A) בקצה ה-\'3 הופכים אותו ל-mRNA בוגר. לחצו על כל חלק, על סוגרי האקסון והגן, או על פריטי המקרא כדי להדגיש אותם בכל שלושת השלבים. לחיצה נוספת מבטלת את ההדגשה.'
+        },
+        promoter: {
+          badge: 'בקרת שעתוק (DNA בלבד)',
+          badgeClass: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
+          title: 'פרומוטור (Promoter)',
+          desc: 'רצף בקרה בדנ"א שנמצא לפני נקודת תחילת השעתוק (+1). הפרומוטור מגייס את האנזים RNA פולימראז II ואת גורמי השעתוק, וקובע היכן, מתי ובאיזו עוצמה הגן ישועתק. הפרומוטור עצמו אינו משועתק ל-mRNA.'
+        },
+        terminator: {
+          badge: 'סיום שעתוק (DNA בלבד)',
+          badgeClass: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
+          title: 'טרמינטור (Terminator)',
+          desc: 'רצף בדנ"א בסוף יחידת השעתוק המסמן ל-RNA פולימראז II לסיים את תהליך השעתוק ולהתנתק מהדנ"א. כך כל גן על כרומוזום או פלסמיד משועתק למולקולת mRNA עצמאית משלו.'
+        },
+        utr5: {
+          badge: 'חלק מאקסון 1 ומהגן (מתועתק, לא מתורגם)',
+          badgeClass: 'bg-indigo-500/20 border-indigo-300/40 text-indigo-200',
+          title: "5' UTR — אזור לא מתורגם קדמי",
+          desc: "חלק בלתי נפרד מהגן ומאקסון 1! הוא משועתק ל-pre-mRNA ונשאר ב-mRNA הבוגר (ולכן אינו אינטרון), אך אינו מתורגם לחומצות אמינו. תפקידו לאפשר לריבוזום להיקשר, לסרוק מהקצה ה-'5 ולזהות במדויק את קודון ההתחלה AUG (שם נקבעת מסגרת הקריאה)."
+        },
+        utr3: {
+          badge: 'חלק מאקסון 3 ומהגן (מתועתק, לא מתורגם)',
+          badgeClass: 'bg-indigo-500/20 border-indigo-300/40 text-indigo-200',
+          title: "3' UTR — אזור לא מתורגם אחורי",
+          desc: "חלק מהגן ומאקסון 3 שמתחיל מיד אחרי קודון הסיום (TGA/UGA) ונמשך עד סוף התעתיק. הוא נשאר ב-mRNA הבוגר, מבקר את יציבות המולקולה (זמן מחצית החיים שלה), מכיל את האות להוספת זנב poly(A) ומהווה אתר קישור למולקולות miRNA וחלבוני בקרה."
+        },
+        cds1: {
+          badge: 'רצף מקודד לחלבון (חלק מאקסון 1)',
+          badgeClass: 'bg-indigo-500/30 border-indigo-400/50 text-indigo-200',
+          title: 'CDS (מקטע 1) וקודון ההתחלה ATG / AUG',
+          desc: 'האזור המקודד לחלבון (Coding Sequence). בגבול שבין 5\' UTR ל-CDS ממוקם קודון ההתחלה (ATG בדנ"א ← AUG ברנ"א), שמקודד למתיונין (Met) וקובע את מסגרת הקריאה (שלשות הנוקלאוטידים) של החלבון כולו.'
+        },
+        cds2: {
+          badge: 'רצף מקודד לחלבון (אקסון 2)',
+          badgeClass: 'bg-indigo-500/30 border-indigo-400/50 text-indigo-200',
+          title: 'CDS (מקטע 2 — אקסון פנימי)',
+          desc: 'מקטע מקודד פנימי שנמצא בין אינטרון 1 לאינטרון 2. במהלך השחבור (Splicing) האינטרונים שמצדדיו נגזרים החוצה, והוא מתחבר ברצף מדויק (תוך שמירה על מסגרת הקריאה) אל מקטעי ה-CDS של אקסון 1 ואקסון 3.'
+        },
+        cds3: {
+          badge: 'רצף מקודד לחלבון (חלק מאקסון 3)',
+          badgeClass: 'bg-indigo-500/30 border-indigo-400/50 text-indigo-200',
+          title: 'CDS (מקטע 3) וקודון הסיום TGA / UGA',
+          desc: 'החלק האחרון של הרצף המקודד לחלבון. בסופו מופיע קודון הסיום (TGA בדנ"א ← UGA ברנ"א), שאינו מקודד לחומצת אמינו אלא גורם לריבוזום לשחרר את החלבון המוכן ולהתנתק לפני ה-3\' UTR.'
+        },
+        intron1: {
+          badge: 'רצף ביניים נחתך (Splicing)',
+          badgeClass: 'bg-slate-600/40 border-slate-400/50 text-slate-200',
+          title: 'אינטרון 1 (Intron 1)',
+          desc: 'רצף שנמצא בתוך הגן ומשועתק ל-pre-mRNA, אך נחתך החוצה בגרעין על ידי קומפלקס הספלייסוזום (Spliceosome) ומתפרק. בניגוד לאזורי ה-UTR שנשארים ב-mRNA הבוגר, אינטרון לעולם אינו מגיע לריבוזום.'
+        },
+        intron2: {
+          badge: 'רצף ביניים נחתך (Splicing)',
+          badgeClass: 'bg-slate-600/40 border-slate-400/50 text-slate-200',
+          title: 'אינטרון 2 (Intron 2)',
+          desc: 'רצף ביניים שני בין אקסון 2 לאקסון 3. חיתוכו המדויק מאפשר לחבר את אקסון 2 לאקסון 3 מבלי להסיט את מסגרת הקריאה (Frameshift). בגנים מסוימים, שחבור חלופי (Alternative Splicing) יכול ליצור גרסאות שונות של אותו חלבון.'
+        },
+        exon1: {
+          badge: 'אקסון ראשון = 5\' UTR + CDS 1',
+          badgeClass: 'bg-indigo-500/25 border-indigo-400/50 text-indigo-200',
+          title: 'אקסון 1 (Exon 1)',
+          desc: 'אקסון מוגדר ככל מקטע שנשאר ב-mRNA הבוגר לאחר השחבור. לכן אקסון 1 כולל גם את החלק הלא-מתורגם שלפני קודון ההתחלה (5\' UTR) וגם את תחילת הרצף המקודד לחלבון (CDS 1).'
+        },
+        exon2: {
+          badge: 'אקסון פנימי = CDS 2',
+          badgeClass: 'bg-indigo-500/25 border-indigo-400/50 text-indigo-200',
+          title: 'אקסון 2 (Exon 2)',
+          desc: 'אקסון פנימי שכולו רצף מקודד (CDS). לאחר שכל האינטרונים נחתכים, אקסון 2 מתאחה עם אקסון 1 ואקסון 3 ליצירת רצף קריאה רציף.'
+        },
+        exon3: {
+          badge: 'אקסון אחרון = CDS 3 + 3\' UTR',
+          badgeClass: 'bg-indigo-500/25 border-indigo-400/50 text-indigo-200',
+          title: 'אקסון 3 (Exon 3)',
+          desc: 'האקסון האחרון בגן, הכולל הן את סוף הרצף המקודד (עד קודון הסיום) והן את כל ה-3\' UTR שנשאר מחובר אליו עד זנב ה-poly(A).'
+        },
+        gene: {
+          badge: 'יחידת התעתוק המלאה',
+          badgeClass: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200',
+          title: 'הגן (יחידת התעתוק)',
+          desc: 'כל האזור בדנ"א שמשועתק ל-pre-mRNA — החל מנקודת תחילת השעתוק (+1 בתחילת 5\' UTR) ועד סוף 3\' UTR. הגן כולל את כל האקסונים, האינטרונים ואזורי ה-UTR (ובמובן הרחב גם את רצפי הבקרה הצמודים לו).'
+        },
+        cap: {
+          badge: 'עיבוד mRNA (קצה \'5)',
+          badgeClass: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
+          title: "כיפת '5 (5' Cap)",
+          desc: "נוקלאוטיד גואנין שעבר מתילציה (m7G) ומתווסף לקצה ה-'5 של הרנ\"א מיד בתחילת השעתוק. הכיפה מגינה על ה-mRNA מפני פירוק על ידי אקסונוקלאזות, מסייעת ביצוא מהגרעין לציטופלזמה ומהווה נקודת עגינה לריבוזום."
+        },
+        polya: {
+          badge: 'עיבוד mRNA (קצה \'3)',
+          badgeClass: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
+          title: 'זנב Poly(A)',
+          desc: 'שרשרת של עשרות עד מאות נוקלאוטידים של אדנין (A) שמתווספת אנזימטית לקצה ה-\'3 לאחר סיום השעתוק (אינה מקודדת בדנ"א). הזנב מייצב את מולקולת ה-mRNA ומעודד תרגום יעיל בריבוזום.'
+        },
+        cat_cds: {
+          badge: 'קטגוריית מקרא',
+          badgeClass: 'bg-indigo-500/30 border-indigo-400/50 text-indigo-200',
+          title: 'CDS — הרצף המקודד לחלבון (Coding Sequence)',
+          desc: 'כל המקטעים שמתחילים בקודון ההתחלה (ATG/AUG) ומסתיימים בקודון הסיום (TGA/UGA). לאחר הסרת האינטרונים, שלושת חלקי ה-CDS מתחברים לרצף אחד שנקרא בשלשות (קודונים) ומתורגם לשרשרת חומצות אמינו.'
+        },
+        cat_utr: {
+          badge: 'קטגוריית מקרא',
+          badgeClass: 'bg-indigo-500/20 border-indigo-300/40 text-indigo-200',
+          title: 'UTR — אזורים מתועתקים ולא מתורגמים (Untranslated Regions)',
+          desc: 'האזורים 5\' UTR ו-3\' UTR הם חלק מהגן ומהאקסונים הקיצוניים. הם משועתקים ונשארים ב-mRNA הבוגר, מבקרים את יציבות המולקולה ואת יעילות הקישור לריבוזום, אך הריבוזום אינו מתרגם אותם לחומצות אמינו.'
+        },
+        cat_intron: {
+          badge: 'קטגוריית מקרא',
+          badgeClass: 'bg-slate-600/40 border-slate-400/50 text-slate-200',
+          title: 'אינטרונים (Introns)',
+          desc: 'רצפים הנמצאים בתוך הגן בדנ"א ומשועתקים ל-pre-mRNA, אך נגזרים החוצה בתהליך השחבור (Splicing) ואינם מופיעים ב-mRNA הבוגר.'
+        },
+        cat_ctrl: {
+          badge: 'קטגוריית מקרא',
+          badgeClass: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
+          title: 'רצפי בקרה, סימון ועיבוד',
+          desc: 'כוללים את הפרומוטור והטרמינטור בדנ"א (שמכוונים את תחילת השעתוק וסיומו ואינם משועתקים), וכן את כיפת ה-\'5 (5\' cap) וזנב ה-poly(A) שמתווספים לעיבוד והגנה על ה-mRNA הבוגר.'
+        }
+      };
+
+      const STRAND_TRIPLETS = [
+        { region: "5' UTR", type: 'utr', coding: ['G', 'C', 'A'], template: ['C', 'G', 'T'], mrna: ['G', 'C', 'A'], aa: "5' UTR", aaSub: 'לא מתורגם' },
+        { region: 'קודון התחלה', type: 'start', coding: ['A', 'T', 'G'], template: ['T', 'A', 'C'], mrna: ['A', 'U', 'G'], aa: 'Met', aaSub: 'מתיונין' },
+        { region: 'קודון 2', type: 'cds', coding: ['T', 'G', 'G'], template: ['A', 'C', 'C'], mrna: ['U', 'G', 'G'], aa: 'Trp', aaSub: 'טריפטופן' },
+        { region: 'קודון 3', type: 'cds', coding: ['T', 'T', 'C'], template: ['A', 'A', 'G'], mrna: ['U', 'U', 'C'], aa: 'Phe', aaSub: 'פנילאלנין' },
+        { region: 'קודון 4', type: 'cds', coding: ['G', 'G', 'C'], template: ['C', 'C', 'G'], mrna: ['G', 'G', 'C'], aa: 'Gly', aaSub: 'גליצין' },
+        { region: 'קודון 5', type: 'cds', coding: ['T', 'A', 'C'], template: ['A', 'T', 'G'], mrna: ['U', 'A', 'C'], aa: 'Tyr', aaSub: 'טירוזין' },
+        { region: 'קודון סיום', type: 'stop', coding: ['T', 'G', 'A'], template: ['A', 'C', 'T'], mrna: ['U', 'G', 'A'], aa: 'STOP', aaSub: 'סיום תרגום' },
+        { region: "3' UTR", type: 'utr', coding: ['C', 'A', 'T'], template: ['G', 'T', 'A'], mrna: ['C', 'A', 'U'], aa: "3' UTR", aaSub: 'לא מתורגם' }
+      ];
+
+      const FLAT_BASES = [];
+      STRAND_TRIPLETS.forEach((triplet, cIdx) => {
+        for (let b = 0; b < 3; b++) {
+          FLAT_BASES.push({
+            globalIdx: cIdx * 3 + b,
+            codonIdx: cIdx,
+            posInCodon: b + 1,
+            region: triplet.region,
+            type: triplet.type,
+            coding: triplet.coding[b],
+            template: triplet.template[b],
+            mrna: triplet.mrna[b],
+            aa: triplet.aa,
+            aaSub: triplet.aaSub
+          });
+        }
+      });
+
+      let activeSelection = null;
+      let isAnimating = false;
+      let animationTimers = [];
+      let riboInterval = null;
+      let letterAnimTimer = null;
+      let currentLetterIdx = 23;
+      let isSlowSpeed = false;
+      let isLetterPlaying = false;
+
+      const bodyEl = document.body;
+      const allBlocks = document.querySelectorAll('.bio-block');
+      const allBrackets = document.querySelectorAll('.bracket-btn');
+      const excised1 = document.getElementById('excised-1');
+      const excised2 = document.getElementById('excised-2');
+      const infoBadge = document.getElementById('info-badge');
+      const infoTitle = document.getElementById('info-title');
+      const infoDesc = document.getElementById('info-desc');
+      const btnClear = document.getElementById('btn-clear-selection');
+      const statusText = document.getElementById('status-text');
+
+      function updateInfoCard(key) {
+        const data = BIO_INFO[key] || BIO_INFO.default;
+        infoBadge.className = `text-xs font-bold px-2.5 py-0.5 rounded-md border ${data.badgeClass}`;
+        infoBadge.textContent = data.badge;
+        infoTitle.textContent = data.title;
+        infoDesc.innerHTML = data.desc;
+
+        if (key && key !== 'default') {
+          btnClear.classList.remove('hidden');
+        } else {
+          btnClear.classList.add('hidden');
+        }
+      }
+
+      function clearSelection() {
+        activeSelection = null;
+        bodyEl.classList.remove('has-selection');
+        allBlocks.forEach(b => b.classList.remove('is-highlighted'));
+        allBrackets.forEach(b => b.classList.remove('is-highlighted'));
+        excised1.classList.remove('is-highlighted');
+        excised2.classList.remove('is-highlighted');
+        updateInfoCard('default');
+      }
+
+      function toggleSelection(selectionKey, isCategory = false) {
+        if (activeSelection === selectionKey) {
+          clearSelection();
+          return;
+        }
+
+        activeSelection = selectionKey;
+        bodyEl.classList.add('has-selection');
+
+        allBlocks.forEach(block => {
+          if (isCategory) {
+            const cat = block.getAttribute('data-cat');
+            block.classList.toggle('is-highlighted', cat === selectionKey);
+          } else {
+            const groups = (block.getAttribute('data-groups') || '').split(' ');
+            block.classList.toggle('is-highlighted', groups.includes(selectionKey));
+          }
+        });
+
+        allBrackets.forEach(br => {
+          const brKey = br.getAttribute('data-select');
+          br.classList.toggle('is-highlighted', !isCategory && brKey === selectionKey);
+        });
+
+        excised1.classList.toggle(
+          'is-highlighted',
+          (!isCategory && selectionKey === 'intron1') || (isCategory && selectionKey === 'intron')
+        );
+        excised2.classList.toggle(
+          'is-highlighted',
+          (!isCategory && selectionKey === 'intron2') || (isCategory && selectionKey === 'intron')
+        );
+
+        updateInfoCard(isCategory ? `cat_${selectionKey}` : selectionKey);
+      }
+
+      allBlocks.forEach(block => {
+        block.addEventListener('click', () => {
+          const id = block.getAttribute('data-id');
+          if (id) toggleSelection(id, false);
+        });
+      });
+
+      allBrackets.forEach(br => {
+        br.addEventListener('click', () => {
+          const key = br.getAttribute('data-select');
+          if (key) toggleSelection(key, false);
+        });
+      });
+
+      excised1.addEventListener('click', () => toggleSelection('intron1', false));
+      excised2.addEventListener('click', () => toggleSelection('intron2', false));
+
+      document.querySelectorAll('.legend-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cat = btn.getAttribute('data-cat-filter');
+          if (cat) toggleSelection(cat, true);
+        });
+      });
+
+      btnClear.addEventListener('click', clearSelection);
+
+      function renderStrandsBoard() {
+        const container = document.getElementById('triplets-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        STRAND_TRIPLETS.forEach((item, cIdx) => {
+          const card = document.createElement('div');
+          card.className = 'codon-group-card flex flex-col items-center';
+          card.setAttribute('data-codon-idx', cIdx);
+
+          const codingHtml = item.coding.map((base, bIdx) => {
+            const gIdx = cIdx * 3 + bIdx;
+            const isT = base === 'T';
+            return `<span class="nuc-cell ${isT ? 'base-t-coding' : ''} bg-amber-500/15 border border-amber-500/35 text-amber-200" data-gidx="${gIdx}" data-base="${base}">${base}</span>`;
+          }).join('');
+
+          const dnaBondsHtml = item.coding.map((base) => {
+            const bondSymbol = (base === 'G' || base === 'C') ? '≡' : '=';
+            return `<span class="inline-flex items-center justify-center w-[23px] shrink-0 text-[10px] text-slate-600 font-mono-bio">${bondSymbol}</span>`;
+          }).join('');
+
+          const templateHtml = item.template.map((base, bIdx) => {
+            const gIdx = cIdx * 3 + bIdx;
+            return `<span class="nuc-cell nuc-template bg-emerald-500/15 border border-emerald-500/35 text-emerald-200" data-gidx="${gIdx}">${base}</span>`;
+          }).join('');
+
+          const bridgeHtml = item.mrna.map((base, bIdx) => {
+            const gIdx = cIdx * 3 + bIdx;
+            const bondSymbol = (base === 'G' || base === 'C') ? '≡' : '=';
+            return `<span class="pair-bridge-cell" data-gidx="${gIdx}" data-bond="${bondSymbol}">${bondSymbol}</span>`;
+          }).join('');
+
+          const mrnaHtml = item.mrna.map((base, bIdx) => {
+            const gIdx = cIdx * 3 + bIdx;
+            const isU = base === 'U';
+            return `<span class="nuc-cell nuc-mrna ${isU ? 'base-u-mrna' : ''} bg-indigo-500/20 border border-indigo-400/40 text-indigo-100" data-gidx="${gIdx}" data-base="${base}">${base}</span>`;
+          }).join('');
+
+          let aaBadgeStyle = 'bg-cyan-500/15 border-cyan-500/40 text-cyan-200';
+          if (item.type === 'utr') {
+            aaBadgeStyle = 'bg-slate-800/70 border-slate-600/60 border-dashed text-slate-400';
+          } else if (item.type === 'start') {
+            aaBadgeStyle = 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200';
+          } else if (item.type === 'stop') {
+            aaBadgeStyle = 'bg-rose-500/20 border-rose-400/50 text-rose-200';
+          }
+
+          const regionLabelHtml = item.type === 'utr'
+            ? `<bdi dir="ltr" class="dir-ltr-bio text-[10px] font-semibold text-slate-300 mb-1">${item.region}</bdi>`
+            : `<span dir="rtl" class="text-[10px] font-semibold text-slate-400 mb-1">${item.region}</span>`;
+
+          const aaTopHtml = item.type === 'utr'
+            ? `<bdi dir="ltr" class="dir-ltr-bio text-[11px] font-bold leading-tight">${item.aa}</bdi>`
+            : `<span class="font-mono-bio text-[11px] font-bold leading-tight">${item.aa}</span>`;
+
+          card.innerHTML = `
+            <div class="row-coding-wrap min-h-[74px] flex flex-col items-center justify-end pb-1 transition-opacity">
+              ${regionLabelHtml}
+              <div class="flex items-center justify-center gap-1">${codingHtml}</div>
+            </div>
+            <div class="row-dna-bonds min-h-[20px] flex items-center justify-center gap-1 select-none transition-opacity">${dnaBondsHtml}</div>
+            <div class="row-template-wrap min-h-[70px] flex items-center justify-center pt-3 transition-opacity">
+              <div class="flex items-center justify-center gap-1">${templateHtml}</div>
+            </div>
+            <div class="row-bridge-wrap min-h-[28px] flex items-center justify-center gap-1 select-none transition-opacity">${bridgeHtml}</div>
+            <div class="min-h-[64px] flex items-center justify-center">
+              <div class="flex items-center justify-center gap-1">${mrnaHtml}</div>
+            </div>
+            <div class="min-h-[26px] flex items-center justify-center text-[10px] text-cyan-500/80 select-none">
+              ${item.type === 'utr' ? '·' : '▼'}
+            </div>
+            <div dir="rtl" class="min-h-[54px] w-full rounded-lg border px-1 py-1 flex flex-col items-center justify-center text-center ${aaBadgeStyle}">
+              ${aaTopHtml}
+              <span class="text-[9.5px] opacity-85 leading-snug mt-0.5">${item.aaSub}</span>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+
+        container.querySelectorAll('.nuc-cell').forEach(cell => {
+          cell.addEventListener('click', () => {
+            pauseLetterAnimation();
+            document.querySelectorAll('.codon-group-card').forEach(c => c.classList.remove('is-ribo-codon'));
+            const gIdx = parseInt(cell.getAttribute('data-gidx'), 10);
+            if (!Number.isNaN(gIdx)) {
+              renderTranscriptionState(gIdx, true);
+            }
+          });
+        });
+      }
+
+      function renderTranscriptionState(idx, showActiveCursor = true) {
+        currentLetterIdx = idx;
+
+        document.querySelectorAll('.nuc-template').forEach(cell => {
+          const gIdx = parseInt(cell.getAttribute('data-gidx'), 10);
+          const oldTag = cell.querySelector('.pol-cursor-tag');
+          if (oldTag) oldTag.remove();
+
+          if (showActiveCursor && gIdx === idx) {
+            cell.classList.add('is-pol-active');
+            const tag = document.createElement('span');
+            tag.className = 'pol-cursor-tag';
+            tag.textContent = 'Pol II';
+            cell.appendChild(tag);
+          } else {
+            cell.classList.remove('is-pol-active');
+          }
+        });
+
+        document.querySelectorAll('.nuc-mrna').forEach(cell => {
+          const gIdx = parseInt(cell.getAttribute('data-gidx'), 10);
+          const base = cell.getAttribute('data-base') || '';
+          const isTranscribed = gIdx <= idx;
+
+          cell.textContent = isTranscribed ? base : '·';
+          cell.classList.toggle('is-untranscribed', !isTranscribed);
+          cell.classList.toggle('is-newly-added', showActiveCursor && gIdx === idx);
+        });
+
+        document.querySelectorAll('.pair-bridge-cell').forEach(cell => {
+          const gIdx = parseInt(cell.getAttribute('data-gidx'), 10);
+          const bondSymbol = cell.getAttribute('data-bond') || '=';
+          const isTranscribed = gIdx <= idx;
+
+          cell.textContent = isTranscribed ? bondSymbol : '·';
+          cell.classList.toggle('is-paired-done', isTranscribed);
+          cell.classList.toggle('is-pairing-now', showActiveCursor && gIdx === idx);
+        });
+
+        const box = document.getElementById('letter-inspector-box');
+        if (!showActiveCursor || idx < 0 || idx >= FLAT_BASES.length) {
+          box.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+              <span class="font-bold text-emerald-300">🔬 לחצו על "הפעל שעתוק אות-אחר-אות (Pol II)" או על כל אות ברצף:</span>
+              <span class="font-mono-bio text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">24 נוקלאוטידים • 8 שלשות</span>
+            </div>
+            <p class="text-slate-300">
+              תוכלו לראות כיצד <strong>RNA פולימראז II</strong> מתקדם אות-אחר-אות על גבי <strong>גדיל התבנית</strong> (<bdi dir="ltr" class="dir-ltr-bio text-emerald-300 font-semibold">3' → 5'</bdi>), מזווג מול כל בסיס ריבונוקלאוטיד משלים בקצה ה-<bdi dir="ltr" class="dir-ltr-bio font-semibold">3'-OH</bdi> של ה-mRNA הנבנה, ויוצר רצף <bdi dir="ltr" class="dir-ltr-bio text-indigo-300 font-semibold">5' → 3'</bdi> שזהה לגדיל המקודד (פרט להחלפת <strong>T</strong> ב-<strong>U</strong>).
+            </p>
+          `;
+          return;
+        }
+
+        const info = FLAT_BASES[idx];
+        const regionDisplay = info.type === 'utr'
+          ? `<bdi dir="ltr" class="dir-ltr-bio">${info.region}</bdi>`
+          : info.region;
+        const bondType = (info.template === 'G' || info.template === 'C') ? '3 קשרי מימן (≡)' : '2 קשרי מימן (=)';
+        const uracilNote = info.template === 'A'
+          ? ' <span class="text-amber-300 font-semibold">(ברנ"א אין תימין T, ולכן מול A בתבנית מוצב אורציל U!)</span>'
+          : '';
+        const codingCompareNote = info.coding === 'T'
+          ? `בגדיל המקודד מופיע <strong class="font-mono-bio text-amber-300">T</strong> — זהה לתפקיד של <strong class="font-mono-bio text-indigo-300">U</strong> ב-mRNA!`
+          : `בגדיל המקודד מופיע <strong class="font-mono-bio text-amber-300">${info.coding}</strong> — זהה לחלוטין לאות <strong class="font-mono-bio text-indigo-300">${info.mrna}</strong> שנוצרה ב-mRNA!`;
+
+        const translationNote = info.type === 'utr'
+          ? `אזור <strong>${regionDisplay}</strong> — חלק זה משועתק ל-mRNA, אך <strong>אינו מתורגם</strong> לחומצת אמינו בריבוזום.`
+          : info.type === 'stop'
+            ? `חלק מקודון הסיום <bdi dir="ltr" class="dir-ltr-bio font-bold text-rose-300">5'-UGA-3'</bdi> — מסמן לריבוזום לעצור ולשחרר את החלבון.`
+            : `אות ${info.posInCodon} מתוך 3 בקודון <bdi dir="ltr" class="dir-ltr-bio font-bold text-indigo-200">5'-${STRAND_TRIPLETS[info.codonIdx].mrna.join('')}-3'</bdi> ← מקודד לחומצת האמינו <strong class="text-cyan-300">${info.aa} (${info.aaSub})</strong>.`;
+
+        box.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-700/70">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-bold text-xs">
+                אות ${idx + 1} מתוך 24
+              </span>
+              <span class="text-xs font-semibold text-slate-300">${regionDisplay} (שלשה ${info.codonIdx + 1})</span>
+            </div>
+            <bdi dir="ltr" class="dir-ltr-bio text-xs text-slate-300 bg-slate-800/90 px-2.5 py-0.5 rounded border border-slate-700">
+              תבנית 3'-<strong class="text-emerald-300">${info.template}</strong>-5' ⟷ mRNA 5'-<strong class="text-indigo-300">${info.mrna}</strong>-3'
+            </bdi>
+          </div>
+          <ul class="space-y-1 text-xs sm:text-sm text-slate-200">
+            <li><strong class="text-emerald-300">1. קריאת גדיל התבנית (<bdi dir="ltr" class="dir-ltr-bio">3' → 5'</bdi>):</strong> RNA פולימראז II קורא את הבסיס <strong class="font-mono-bio text-emerald-300">${info.template}</strong> בגדיל התבנית.</li>
+            <li><strong class="text-indigo-300">2. זיווג משלים לבניית mRNA (<bdi dir="ltr" class="dir-ltr-bio">5' → 3'</bdi>):</strong> האנזים מחבר לקצה ה-<bdi dir="ltr" class="dir-ltr-bio">3'-OH</bdi> של ה-mRNA את הבסיס המשלים <strong class="font-mono-bio text-indigo-300">${info.mrna}</strong> (${bondType}).${uracilNote}</li>
+            <li><strong class="text-amber-300">3. השוואה לגדיל המקודד (<bdi dir="ltr" class="dir-ltr-bio">5' → 3'</bdi>):</strong> ${codingCompareNote}</li>
+            <li><strong class="text-cyan-300">4. משמעות בתרגום:</strong> ${translationNote}</li>
+          </ul>
+        `;
+      }
+
+      function pauseLetterAnimation() {
+        if (letterAnimTimer) {
+          clearInterval(letterAnimTimer);
+          letterAnimTimer = null;
+        }
+        isLetterPlaying = false;
+        const playLbl = document.getElementById('btn-play-lbl-text');
+        if (playLbl) {
+          playLbl.textContent = 'הפעל שעתוק אות-אחר-אות (Pol II)';
+        }
+      }
+
+      function startLetterByLetterAnimation() {
+        if (isLetterPlaying) {
+          pauseLetterAnimation();
+          return;
+        }
+
+        stopAllAnimations();
+        document.querySelectorAll('.codon-group-card').forEach(c => c.classList.remove('is-ribo-codon'));
+
+        isLetterPlaying = true;
+        const playLbl = document.getElementById('btn-play-lbl-text');
+        if (playLbl) {
+          playLbl.textContent = 'השהה אנימציה ⏸';
+        }
+
+        const delay = isSlowSpeed ? 900 : 480;
+        let step = 0;
+
+        renderTranscriptionState(0, true);
+        step = 1;
+
+        letterAnimTimer = setInterval(() => {
+          if (step < FLAT_BASES.length) {
+            renderTranscriptionState(step, true);
+            step++;
+          } else if (step < FLAT_BASES.length + STRAND_TRIPLETS.length) {
+            const codonIdx = step - FLAT_BASES.length;
+            if (codonIdx === 0) {
+              document.querySelectorAll('.nuc-template').forEach(c => {
+                c.classList.remove('is-pol-active');
+                const tag = c.querySelector('.pol-cursor-tag');
+                if (tag) tag.remove();
+              });
+              document.querySelectorAll('.nuc-mrna').forEach(c => c.classList.remove('is-newly-added'));
+              document.querySelectorAll('.pair-bridge-cell').forEach(c => c.classList.remove('is-pairing-now'));
+            }
+
+            document.querySelectorAll('.codon-group-card').forEach((card, idx) => {
+              card.classList.toggle('is-ribo-codon', idx === codonIdx);
+            });
+
+            const triplet = STRAND_TRIPLETS[codonIdx];
+            const tripletRegion = triplet.type === 'utr'
+              ? `<bdi dir="ltr" class="dir-ltr-bio">${triplet.region}</bdi>`
+              : triplet.region;
+            const box = document.getElementById('letter-inspector-box');
+            const actionText = triplet.type === 'utr'
+              ? `הריבוזום סורק את <strong>${tripletRegion}</strong> (<bdi dir="ltr" class="dir-ltr-bio">5'-${triplet.mrna.join('')}-3'</bdi>) — <strong>אינו מתורגם</strong> לחומצת אמינו.`
+              : triplet.type === 'stop'
+                ? `הריבוזום מגיע לקודון הסיום <bdi dir="ltr" class="dir-ltr-bio font-bold text-rose-300">5'-UGA-3'</bdi> — התרגום מסתיים והחלבון משתחרר!`
+                : `הריבוזום קורא את הקודון <bdi dir="ltr" class="dir-ltr-bio font-bold text-indigo-200">5'-${triplet.mrna.join('')}-3'</bdi> ומחבר את חומצת האמינו <strong class="text-cyan-300">${triplet.aa} (${triplet.aaSub})</strong>.`;
+
+            box.innerHTML = `
+              <div class="flex items-center justify-between mb-1">
+                <span class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 font-bold text-xs">
+                  שלב התרגום בריבוזום • שלשה ${codonIdx + 1} מתוך 8
+                </span>
+                <bdi dir="ltr" class="dir-ltr-bio text-xs text-cyan-300">mRNA 5' → 3'</bdi>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-200">${actionText}</p>
+            `;
+            step++;
+          } else {
+            pauseLetterAnimation();
+            document.querySelectorAll('.codon-group-card').forEach(c => c.classList.remove('is-ribo-codon'));
+            renderTranscriptionState(23, false);
+          }
+        }, delay);
+      }
+
+      function stopAllAnimations() {
+        animationTimers.forEach(t => clearTimeout(t));
+        animationTimers = [];
+        if (riboInterval) {
+          clearInterval(riboInterval);
+          riboInterval = null;
+        }
+        pauseLetterAnimation();
+        isAnimating = false;
+
+        const rnaPol = document.getElementById('rnapol-marker');
+        rnaPol.style.opacity = '0';
+        rnaPol.style.left = '12%';
+
+        const riboRig = document.getElementById('ribosome-rig');
+        riboRig.style.opacity = '0';
+        document.getElementById('polypeptide-chain').innerHTML = '';
+        document.getElementById('ribo-status-label').textContent = 'מוכן ליציאה לציטופלזמה ולתרגום בריבוזום';
+
+        excised1.classList.remove('snip-active');
+        excised2.classList.remove('snip-active');
+
+        ['stage-1', 'transition-1-2', 'stage-2', 'transition-2-3', 'stage-3'].forEach(id => {
+          document.getElementById(id).classList.remove('stage-hidden');
+        });
+
+        document.querySelectorAll('.codon-group-card').forEach(c => c.classList.remove('is-ribo-codon'));
+      }
+
+      function runFullPipelineAnimation() {
+        stopAllAnimations();
+        clearSelection();
+        isAnimating = true;
+
+        const t12 = document.getElementById('transition-1-2');
+        const s2 = document.getElementById('stage-2');
+        const t23 = document.getElementById('transition-2-3');
+        const s3 = document.getElementById('stage-3');
+        const rnaPol = document.getElementById('rnapol-marker');
+
+        t12.classList.add('stage-hidden');
+        s2.classList.add('stage-hidden');
+        t23.classList.add('stage-hidden');
+        s3.classList.add('stage-hidden');
+
+        statusText.textContent = 'שלב 1: RNA פולימראז II נקשר לפרומוטור ומשעתק את הגן...';
+
+        rnaPol.style.left = '11%';
+        rnaPol.style.opacity = '1';
+
+        animationTimers.push(setTimeout(() => {
+          rnaPol.style.left = '86%';
+        }, 150));
+
+        animationTimers.push(setTimeout(() => {
+          t12.classList.remove('stage-hidden');
+          s2.classList.remove('stage-hidden');
+          rnaPol.style.opacity = '0';
+          statusText.textContent = 'שלב 2: נוצר תעתיק ראשוני (pre-mRNA) הכולל אינטרונים';
+        }, 1850));
+
+        animationTimers.push(setTimeout(() => {
+          t23.classList.remove('stage-hidden');
+          excised1.classList.add('snip-active');
+          excised2.classList.add('snip-active');
+          statusText.textContent = 'עיבוד: שחבור האינטרונים, כיפוי \'5 והוספת זנב poly(A)...';
+        }, 3100));
+
+        animationTimers.push(setTimeout(() => {
+          s3.classList.remove('stage-hidden');
+          statusText.textContent = 'הושלם! ה-mRNA הבוגר מוכן לתרגום';
+          isAnimating = false;
+        }, 4350));
+      }
+
+      function runRibosomeTranslation() {
+        stopAllAnimations();
+        clearSelection();
+
+        const track = document.getElementById('mature-mrna-track');
+        const utr5El = document.getElementById('mature-utr5');
+        const cds1El = document.getElementById('mature-cds1');
+        const cds3El = document.getElementById('mature-cds3');
+        const riboRig = document.getElementById('ribosome-rig');
+        const chainEl = document.getElementById('polypeptide-chain');
+        const riboLabel = document.getElementById('ribo-status-label');
+
+        const trackRect = track.getBoundingClientRect();
+        const utr5Rect = utr5El.getBoundingClientRect();
+        const cds1Rect = cds1El.getBoundingClientRect();
+        const cds3Rect = cds3El.getBoundingClientRect();
+
+        const startScanPct = ((utr5Rect.left - trackRect.left + 8) / trackRect.width) * 100;
+        const augPct = ((cds1Rect.left - trackRect.left + 6) / trackRect.width) * 100;
+        const ugaPct = ((cds3Rect.right - trackRect.left - 8) / trackRect.width) * 100;
+
+        const beadColors = ['#34d399', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa', '#38bdf8', '#fb7185', '#4ade80'];
+
+        let currentPct = startScanPct;
+        let phase = 'scanning';
+        let stepCount = 0;
+
+        riboRig.style.left = `${currentPct}%`;
+        riboRig.style.opacity = '1';
+        chainEl.innerHTML = '';
+
+        statusText.textContent = 'תרגום: הריבוזום סורק את ה-5\' UTR בחיפוש אחר AUG...';
+        riboLabel.textContent = 'סורק 5\' UTR (ללא תרגום עדיין)...';
+
+        utr5El.classList.add('is-highlighted');
+        bodyEl.classList.add('has-selection');
+
+        riboInterval = setInterval(() => {
+          if (phase === 'scanning') {
+            currentPct += 1.1;
+            riboRig.style.left = `${currentPct}%`;
+
+            if (currentPct >= augPct) {
+              currentPct = augPct;
+              riboRig.style.left = `${currentPct}%`;
+              phase = 'translating';
+
+              utr5El.classList.remove('is-highlighted');
+              document.getElementById('mature-cds1').classList.add('is-highlighted');
+              document.getElementById('mature-cds2').classList.add('is-highlighted');
+              document.getElementById('mature-cds3').classList.add('is-highlighted');
+
+              statusText.textContent = 'זוהה קודון התחלה AUG! הריבוזום מתרגם את ה-CDS לחלבון...';
+              riboLabel.textContent = 'מתרגם קודונים (שלשות) לשרשרת חומצות אמינו...';
+            }
+          } else if (phase === 'translating') {
+            currentPct += 1.45;
+            stepCount += 1;
+            riboRig.style.left = `${currentPct}%`;
+
+            if (stepCount % 2 === 0 && chainEl.children.length < 11) {
+              const bead = document.createElement('span');
+              bead.className = 'aa-bead';
+              bead.style.backgroundColor = beadColors[chainEl.children.length % beadColors.length];
+              chainEl.appendChild(bead);
+            }
+
+            if (currentPct >= ugaPct) {
+              currentPct = ugaPct;
+              riboRig.style.left = `${currentPct}%`;
+              phase = 'done';
+
+              statusText.textContent = 'הריבוזום הגיע לקודון הסיום UGA — החלבון שוחרר לפני ה-3\' UTR!';
+              riboLabel.textContent = 'עצירה בקודון UGA ושחרור החלבון (3\' UTR לא מתורגם)';
+
+              clearInterval(riboInterval);
+              riboInterval = null;
+
+              animationTimers.push(setTimeout(() => {
+                riboRig.style.opacity = '0';
+                clearSelection();
+              }, 2200));
+            }
+          }
+        }, 65);
+      }
+
+      renderStrandsBoard();
+      renderTranscriptionState(23, false);
+
+      document.querySelectorAll('.strand-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mode = btn.getAttribute('data-strand-mode');
+          const board = document.getElementById('strands-sequence-board');
+
+          document.querySelectorAll('.strand-mode-btn').forEach(b => {
+            b.className = 'strand-mode-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition cursor-pointer';
+          });
+          btn.className = 'strand-mode-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold transition cursor-pointer';
+
+          board.classList.remove('mode-coding-match', 'mode-template-pair');
+          if (mode === 'coding-match') {
+            board.classList.add('mode-coding-match');
+          } else if (mode === 'template-pair') {
+            board.classList.add('mode-template-pair');
+          }
+        });
+      });
+
+      const strandsPanel = document.getElementById('strands-panel');
+      document.getElementById('btn-toggle-strands').addEventListener('click', () => {
+        if (strandsPanel.classList.contains('hidden')) {
+          strandsPanel.classList.remove('hidden');
+        }
+        strandsPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      document.getElementById('btn-close-strands').addEventListener('click', () => {
+        pauseLetterAnimation();
+        strandsPanel.classList.add('hidden');
+      });
+
+      document.getElementById('btn-play-letter-by-letter').addEventListener('click', startLetterByLetterAnimation);
+
+      document.getElementById('btn-step-next').addEventListener('click', () => {
+        pauseLetterAnimation();
+        document.querySelectorAll('.codon-group-card').forEach(c => c.classList.remove('is-ribo-codon'));
+        const hasCursor = document.querySelector('.nuc-template.is-pol-active') !== null;
+        const nextIdx = (!hasCursor || currentLetterIdx >= FLAT_BASES.length - 1) ? 0 : currentLetterIdx + 1;
+        renderTranscriptionState(nextIdx, true);
+      });
+
+      document.getElementById('btn-step-prev').addEventListener('click', () => {
+        pauseLetterAnimation();
+        document.querySelectorAll('.codon-group-card').forEach(c => c.classList.remove('is-ribo-codon'));
+        const prevIdx = currentLetterIdx <= 0 ? FLAT_BASES.length - 1 : currentLetterIdx - 1;
+        renderTranscriptionState(prevIdx, true);
+      });
+
+      document.getElementById('btn-toggle-speed').addEventListener('click', () => {
+        isSlowSpeed = !isSlowSpeed;
+        document.getElementById('speed-label').textContent = isSlowSpeed ? 'איטית' : 'רגילה';
+        if (isLetterPlaying) {
+          pauseLetterAnimation();
+          startLetterByLetterAnimation();
+        }
+      });
+
+      const btnResetStrandsStandalone = document.getElementById('btn-reset-strands-standalone');
+      if (btnResetStrandsStandalone) {
+        btnResetStrandsStandalone.addEventListener('click', () => {
+          stopAllAnimations();
+          document.getElementById('strands-sequence-board').classList.remove('mode-coding-match', 'mode-template-pair');
+          document.querySelectorAll('.strand-mode-btn').forEach((b, i) => {
+            b.className = i === 0
+              ? 'strand-mode-btn px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold transition cursor-pointer'
+              : 'strand-mode-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition cursor-pointer';
+          });
+          renderTranscriptionState(23, false);
+        });
+      }
+
+      document.getElementById('btn-copy-html').addEventListener('click', () => {
+        const textarea = document.createElement('textarea');
+        textarea.value = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          const lbl = document.getElementById('copy-html-label');
+          lbl.textContent = 'הקוד הועתק! ✓';
+          setTimeout(() => { lbl.textContent = 'העתק קוד HTML'; }, 2200);
+        } catch (err) {
+          console.error('Copy failed', err);
+        }
+        document.body.removeChild(textarea);
+      });
+
+      document.getElementById('btn-play-all').addEventListener('click', runFullPipelineAnimation);
+      document.getElementById('btn-ribosome').addEventListener('click', runRibosomeTranslation);
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        stopAllAnimations();
+        clearSelection();
+        document.getElementById('strands-sequence-board').classList.remove('mode-coding-match', 'mode-template-pair');
+        renderTranscriptionState(23, false);
+        statusText.textContent = 'תצוגה מלאה פעילה';
+      });
+    </script>
+  
+</body>
+</html>
