@@ -8,19 +8,18 @@
           "title": "חתך רוחב עמוד שדרה",
           "file": "course-mwy0txan/sim-mwy2fysh.html",
           "description": ""
+        },
+        {
+          "title": "תרשים כללי",
+          "file": "course-mwy0txan/sim-mwy34hkc.html",
+          "description": ""
         }
       ]
     },
     {
       "id": "course-mwy0waoo",
       "name": "ביוכימיה",
-      "simulations": [
-        {
-          "title": "גדילי הדנא והרנא",
-          "file": "course-mwy0waoo/sim-mwy1qhi2.html",
-          "description": ""
-        }
-      ]
+      "simulations": []
     }
   ]
 }
