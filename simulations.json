@@ -14,7 +14,13 @@
     {
       "id": "course-mwy0waoo",
       "name": "ביוכימיה",
-      "simulations": []
+      "simulations": [
+        {
+          "title": "דנא לרנא",
+          "file": "course-mwy0waoo/sim-mwy0wtmq.html",
+          "description": ""
+        }
+      ]
     }
   ]
 }
