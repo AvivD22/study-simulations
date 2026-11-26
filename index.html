@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ספריית ההדמיות שלי</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --border: #e2e8f0;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .container { max-width: 1120px; margin: 0 auto; }
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    h1 { margin: 0; font-size: 1.45rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .search-box {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      width: 240px;
+      max-width: 100%;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { background: #f1f5f9; }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+    .btn-danger-ghost {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .btn-danger-ghost:hover { color: var(--danger); background: #fef2f2; }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    main { padding: 28px 24px 70px; }
+    .course-section { margin-bottom: 36px; }
+    .course-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    .course-title {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15,23,42,0.07);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .status-select {
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+      background: var(--bg);
+    }
+    .empty-state {
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 44px 24px;
+      text-align: center;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 30px auto;
+    }
+    .empty-state h2 { color: var(--text); margin-top: 0; font-size: 1.25rem; }
+    .empty-course {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    /* חלונות קופצים (Modals) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal h2 { margin: 0 0 8px; font-size: 1.25rem; }
+    .modal p.hint { margin: 0 0 16px; color: var(--muted); font-size: 0.88rem; }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.88rem;
+      margin-bottom: 5px;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    .file-drop {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--bg);
+      transition: 0.15s;
+    }
+    .file-drop:hover, .file-drop.dragover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .status-msg {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .status-msg.err { color: var(--danger); }
+    .status-msg.ok { color: var(--success); }
+
+    /* תצוגת מסך מלא */
+    .viewer {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+    }
+    .viewer.open { display: flex; }
+    .viewer-bar {
+      height: 46px;
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+    .viewer-bar.hidden { display: none; }
+    .viewer-actions { display: flex; align-items: center; gap: 8px; }
+    .bar-btn {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+    .bar-btn:hover { background: rgba(255,255,255,0.24); }
+    .floating-restore {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 10000;
+      background: rgba(15,23,42,0.82);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: none;
+    }
+    .floating-restore.visible { display: block; }
+    iframe { flex: 1; width: 100%; height: 100%; border: none; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-top">
+      <h1>ספריית ההדמיות שלי</h1>
+      <div class="toolbar">
+        <input id="searchInput" class="search-box" type="search" placeholder="חיפוש הדמיה..." />
+        <button id="btnAddCourse" class="btn hidden">+ קורס חדש</button>
+        <button id="btnUploadSim" class="btn btn-primary hidden">+ העלאת הדמיה</button>
+        <button id="btnAdmin" class="btn">הגדרות חיבור</button>
+      </div>
+    </div>
+    <div id="courseTabs" class="tabs"></div>
+  </div>
+</header>
+
+<main class="container" id="content"></main>
+
+<!-- חלון חיבור ל-GitHub -->
+<div id="modalAdmin" class="modal-backdrop">
+  <div class="modal">
+    <h2>חיבור אוטומטי ל-GitHub</h2>
+    <p class="hint">הזן פעם אחת את מפתח הגישה (Token) כדי להוסיף קורסים ולהעלות הדמיות ישירות מכאן.</p>
+    <div class="field">
+      <label>שם משתמש ב-GitHub (זוהה אוטומטית)</label>
+      <input id="cfgOwner" type="text" dir="ltr" placeholder="username" />
+    </div>
+    <div class="field">
+      <label>שם המאגר / Repository (זוהה אוטומטית)</label>
+      <input id="cfgRepo" type="text" dir="ltr" placeholder="study-simulations" />
+    </div>
+    <div class="field">
+      <label>מפתח גישה אישי (Personal Access Token)</label>
+      <input id="cfgToken" type="password" dir="ltr" placeholder="github_pat_... או ghp_..." />
+    </div>
+    <div id="adminStatus" class="status-msg"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modalAdmin')">ביטול</button>
+      <button id="saveAdminBtn" class="btn btn-primary">בדוק ושמור חיבור</button>
+    </div>
+  </div>
+</div>
+
+<!-- חלון הוספת קורס -->
+<div id="modalCourse" class="modal-backdrop">
+  <div class="modal">
+    <h2>יצירת תיקיית קורס חדשה</h2>
+    <p class="hint">הקורס יתווסף אוטומטית לתפריט הראשי ולענן.</p>
+    <div class="field">
+      <label>שם הקורס (לדוגמה: ביוכימיה, אימונולוגיה)</label>
+      <input id="newCourseName" type="text" placeholder="הקלד שם קורס..." />
+    </div>
+    <div id="courseStatus" class="status-msg"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modalCourse')">ביטול</button>
+      <button id="createCourseBtn" class="btn btn-primary">צור קורס</button>
+    </div>
+  </div>
+</div>
+
+<!-- חלון העלאת הדמיה -->
+<div id="modalUpload" class="modal-backdrop">
+  <div class="modal">
+    <h2>העלאת הדמיית HTML חדשה</h2>
+    <div class="field">
+      <label>שיוך לקורס</label>
+      <select id="simCourseSelect"></select>
+    </div>
+    <div class="field">
+      <label>כותרת ההדמיה</label>
+      <input id="simTitle" type="text" placeholder="לדוגמה: תעתוק DNA ל-RNA" />
+    </div>
+    <div class="field">
+      <label>תיאור קצר (אופציונלי)</label>
+      <input id="simDesc" type="text" placeholder="מה רואים בהדמיה הזו?" />
+    </div>
+    <div class="field">
+      <label>קובץ HTML</label>
+      <div id="fileDropZone" class="file-drop">
+        <div id="fileDropLabel">לחץ לבחירת קובץ .html או גרור אותו לכאן</div>
+        <input id="simFileInput" type="file" accept=".html,.htm,text/html" class="hidden" />
+      </div>
+    </div>
+    <div id="uploadStatus" class="status-msg"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modalUpload')">ביטול</button>
+      <button id="submitUploadBtn" class="btn btn-success">העלה ופרסם</button>
+    </div>
+  </div>
+</div>
+
+<!-- מסך צפייה בהדמיה -->
+<div id="viewer" class="viewer">
+  <div id="viewerBar" class="viewer-bar">
+    <div class="viewer-actions">
+      <button id="closeViewer" class="bar-btn">→ חזרה לקורסים</button>
+      <strong id="viewerTitle"></strong>
+    </div>
+    <div class="viewer-actions">
+      <button id="openNewTabBtn" class="bar-btn">לשונית חדשה ↗</button>
+      <button id="hideBarBtn" class="bar-btn">מסך נקי</button>
+    </div>
+  </div>
+  <button id="restoreBarBtn" class="floating-restore">הצג סרגל</button>
+  <iframe id="simFrame" title="תצוגת הדמיה"></iframe>
+</div>
+
+<script>
+  const CFG_KEY = "sim_portal_gh_cfg_v1";
+  const PROGRESS_KEY = "sim_portal_progress_v1";
+  let data = { courses: [] };
+  let activeCourse = "all";
+  let selectedFile = null;
+  let currentViewerUrl = "";
+
+  function getCfg() {
+    try { return JSON.parse(localStorage.getItem(CFG_KEY) || "null"); }
+    catch { return null; }
+  }
+
+  function detectRepoFromUrl() {
+    const host = window.location.hostname;
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    let owner = "";
+    let repo = "";
+    if (host.endsWith(".github.io")) {
+      owner = host.replace(".github.io", "");
+      repo = pathParts[0] || "";
+    }
+    return { owner, repo };
+  }
+
+  function escapeHtml(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function utf8ToBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = "";
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  function base64ToUtf8(b64) {
+    const binary = atob(b64.replace(/\s/g, ""));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new TextDecoder().decode(bytes);
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const res = String(reader.result || "");
+        resolve(res.split(",")[1] || "");
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function ghRequest(path, options = {}) {
+    const cfg = getCfg();
+    if (!cfg || !cfg.token) throw new Error("לא הוגדר חיבור ל-GitHub");
+    const res = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}`, {
+      ...options,
+      cache: "no-store",
+      headers: {
+        "Authorization": `Bearer ${cfg.token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      }
+    });
+    return res;
+  }
+
+  async function saveSimulationsIndex(commitMessage) {
+    let sha;
+    const check = await ghRequest("simulations.json");
+    if (check.ok) {
+      const existing = await check.json();
+      sha = existing.sha;
+    }
+    const putRes = await ghRequest("simulations.json", {
+      method: "PUT",
+      body: JSON.stringify({
+        message: commitMessage,
+        content: utf8ToBase64(JSON.stringify(data, null, 2)),
+        ...(sha ? { sha } : {})
+      })
+    });
+    if (!putRes.ok) {
+      const errData = await putRes.json().catch(() => ({}));
+      throw new Error(errData.message || "שגיאה בשמירת רשימת ההדמיות");
+    }
+  }
+
+  function updateAdminUI() {
+    const cfg = getCfg();
+    const isConnected = Boolean(cfg && cfg.token && cfg.owner && cfg.repo);
+    document.getElementById("btnAddCourse").classList.toggle("hidden", !isConnected);
+    document.getElementById("btnUploadSim").classList.toggle("hidden", !isConnected);
+    document.getElementById("btnAdmin").textContent = isConnected ? "מחובר ✓" : "התחבר לניהול";
+  }
+
+  async function loadLibrary() {
+    updateAdminUI();
+    const cfg = getCfg();
+    try {
+      if (cfg && cfg.token && cfg.owner && cfg.repo) {
+        const res = await ghRequest("simulations.json");
+        if (res.ok) {
+          const fileObj = await res.json();
+          data = JSON.parse(base64ToUtf8(fileObj.content));
+        } else {
+          data = { courses: [] };
+        }
+      } else {
+        const res = await fetch("./simulations.json?t=" + Date.now());
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          data = { courses: [] };
+        }
+      }
+    } catch {
+      data = { courses: [] };
+    }
+    renderTabs();
+    renderCourses();
+  }
+
+  function getStatuses() {
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}"); }
+    catch { return {}; }
+  }
+
+  function setStatus(file, status) {
+    const s = getStatuses();
+    s[file] = status;
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(s));
+  }
+
+  function renderTabs() {
+    const tabsEl = document.getElementById("courseTabs");
+    if (!data.courses || !data.courses.length) {
+      tabsEl.innerHTML = "";
+      return;
+    }
+    const allBtn = `<button class="tab ${activeCourse === "all" ? "active" : ""}" data-id="all">כל הקורסים</button>`;
+    const courseBtns = data.courses.map(c =>
+      `<button class="tab ${activeCourse === c.id ? "active" : ""}" data-id="${escapeHtml(c.id)}">${escapeHtml(c.name)}</button>`
+    ).join("");
+    tabsEl.innerHTML = allBtn + courseBtns;
+    tabsEl.querySelectorAll(".tab").forEach(btn => {
+      btn.onclick = () => {
+        activeCourse = btn.dataset.id;
+        renderTabs();
+        renderCourses();
+      };
+    });
+  }
+
+  function renderCourses() {
+    const content = document.getElementById("content");
+    const query = document.getElementById("searchInput").value.trim().toLowerCase();
+    const statuses = getStatuses();
+    const cfg = getCfg();
+    const isAdmin = Boolean(cfg && cfg.token);
+
+    if (!data.courses || !data.courses.length) {
+      content.innerHTML = `
+        <div class="empty-state">
+          <h2>הספרייה שלך ריקה כרגע</h2>
+          <p>${isAdmin
+            ? "לחץ על <strong>+ קורס חדש</strong> למעלה כדי ליצור את תיקיית הקורס הראשונה שלך."
+            : "לחץ על <strong>התחבר לניהול</strong> בפינה העליונה כדי לחבר את חשבון ה-GitHub ולהתחיל להוסיף קורסים והדמיות."
+          }</p>
+        </div>`;
+      return;
+    }
+
+    const filteredCourses = data.courses
+      .filter(c => activeCourse === "all" || c.id === activeCourse)
+      .map(c => ({
+        ...c,
+        simulations: (c.simulations || []).filter(s =>
+          s.title.toLowerCase().includes(query) ||
+          (s.description || "").toLowerCase().includes(query)
+        )
+      }));
+
+    content.innerHTML = filteredCourses.map(course => {
+      const delCourseBtn = isAdmin
+        ? `<button class="btn-danger-ghost" onclick="deleteCourse('${escapeHtml(course.id)}')">מחק קורס</button>`
+        : "";
+
+      const cards = course.simulations.length
+        ? `<div class="grid">${course.simulations.map(sim => {
+            const st = statuses[sim.file] || "new";
+            const delSimBtn = isAdmin
+              ? `<button class="btn-danger-ghost" title="מחק הדמיה" onclick="deleteSim('${escapeHtml(course.id)}', '${escapeHtml(sim.file)}')">✕</button>`
+              : "";
+            return `
+              <div class="card">
+                <div>
+                  <div class="card-top">
+                    <h3>${escapeHtml(sim.title)}</h3>
+                    ${delSimBtn}
+                  </div>
+                  <p>${escapeHtml(sim.description || "")}</p>
+                </div>
+                <div class="card-footer">
+                  <button class="btn btn-primary" onclick="openSim('${escapeHtml(sim.file)}', '${escapeHtml(sim.title)}')">פתח הדמיה</button>
+                  <select class="status-select" onchange="setStatus('${escapeHtml(sim.file)}', this.value)">
+                    <option value="new" ${st === "new" ? "selected" : ""}>טרם נלמד</option>
+                    <option value="progress" ${st === "progress" ? "selected" : ""}>בתהליך</option>
+                    <option value="done" ${st === "done" ? "selected" : ""}>הושלם ✓</option>
+                  </select>
+                </div>
+              </div>`;
+          }).join("")}</div>`
+        : `<div class="empty-course">אין עדיין הדמיות בקורס זה. ${isAdmin ? "לחץ על <strong>+ העלאת הדמיה</strong> כדי להוסיף." : ""}</div>`;
+
+      return `
+        <section class="course-section">
+          <div class="course-header">
+            <h2 class="course-title">${escapeHtml(course.name)}</h2>
+            ${delCourseBtn}
+          </div>
+          ${cards}
+        </section>`;
+    }).join("");
+  }
+
+  async function openSim(file, title) {
+    const frame = document.getElementById("simFrame");
+    document.getElementById("viewerTitle").textContent = title;
+    document.getElementById("viewer").classList.add("open");
+    document.getElementById("viewerBar").classList.remove("hidden");
+    document.getElementById("restoreBarBtn").classList.remove("visible");
+
+    frame.removeAttribute("srcdoc");
+    frame.src = "about:blank";
+    currentViewerUrl = "./" + file;
+
+    try {
+      const check = await fetch("./" + file + "?t=" + Date.now());
+      if (check.ok) {
+        frame.src = "./" + file;
+        return;
+      }
+    } catch {}
+
+    // גיבוי מיידי דרך API אם האתר עדיין מתעדכן ברקע
+    const cfg = getCfg();
+    if (cfg && cfg.token) {
+      try {
+        const apiRes = await ghRequest(file);
+        if (apiRes.ok) {
+          const obj = await apiRes.json();
+          const html = base64ToUtf8(obj.content);
+          frame.srcdoc = html;
+          const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+          currentViewerUrl = URL.createObjectURL(blob);
+          return;
+        }
+      } catch {}
+    }
+    frame.src = "./" + file;
+  }
+
+  document.getElementById("openNewTabBtn").onclick = () => {
+    if (currentViewerUrl) window.open(currentViewerUrl, "_blank", "noopener");
+  };
+
+  function openModal(id) { document.getElementById(id).classList.add("open"); }
+  function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+  // הגדרות חיבור ל-GitHub
+  document.getElementById("btnAdmin").onclick = () => {
+    const cfg = getCfg() || {};
+    const detected = detectRepoFromUrl();
+    document.getElementById("cfgOwner").value = cfg.owner || detected.owner;
+    document.getElementById("cfgRepo").value = cfg.repo || detected.repo;
+    document.getElementById("cfgToken").value = cfg.token || "";
+    document.getElementById("adminStatus").textContent = "";
+    openModal("modalAdmin");
+  };
+
+  document.getElementById("saveAdminBtn").onclick = async () => {
+    const owner = document.getElementById("cfgOwner").value.trim();
+    const repo = document.getElementById("cfgRepo").value.trim();
+    const token = document.getElementById("cfgToken").value.trim();
+    const status = document.getElementById("adminStatus");
+
+    if (!owner || !repo || !token) {
+      status.className = "status-msg err";
+      status.textContent = "נא למלא את כל השדות.";
+      return;
+    }
+
+    status.className = "status-msg";
+    status.textContent = "בודק חיבור...";
+
+    try {
+      const test = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+        headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" }
+      });
+      if (!test.ok) throw new Error("המפתח או שם המאגר שגויים, או שלמפתח אין הרשאת Contents.");
+      localStorage.setItem(CFG_KEY, JSON.stringify({ owner, repo, token }));
+      status.className = "status-msg ok";
+      status.textContent = "החיבור הצליח!";
+      setTimeout(() => {
+        closeModal("modalAdmin");
+        loadLibrary();
+      }, 600);
+    } catch (e) {
+      status.className = "status-msg err";
+      status.textContent = e.message;
+    }
+  };
+
+  // הוספת קורס
+  document.getElementById("btnAddCourse").onclick = () => {
+    document.getElementById("newCourseName").value = "";
+    document.getElementById("courseStatus").textContent = "";
+    openModal("modalCourse");
+  };
+
+  document.getElementById("createCourseBtn").onclick = async () => {
+    const name = document.getElementById("newCourseName").value.trim();
+    const status = document.getElementById("courseStatus");
+    if (!name) {
+      status.className = "status-msg err";
+      status.textContent = "נא להזין שם לקורס.";
+      return;
+    }
+    status.className = "status-msg";
+    status.textContent = "יוצר קורס...";
+    try {
+      const id = "course-" + Date.now().toString(36);
+      data.courses = data.courses || [];
+      data.courses.push({ id, name, simulations: [] });
+      await saveSimulationsIndex(`Add course: ${name}`);
+      activeCourse = id;
+      renderTabs();
+      renderCourses();
+      closeModal("modalCourse");
+    } catch (e) {
+      status.className = "status-msg err";
+      status.textContent = e.message;
+    }
+  };
+
+  // העלאת הדמיה
+  document.getElementById("btnUploadSim").onclick = () => {
+    if (!data.courses || !data.courses.length) {
+      alert("צור קודם קורס אחד לפחות דרך כפתור '+ קורס חדש'.");
+      return;
+    }
+    const sel = document.getElementById("simCourseSelect");
+    sel.innerHTML = data.courses.map(c =>
+      `<option value="${escapeHtml(c.id)}" ${c.id === activeCourse ? "selected" : ""}>${escapeHtml(c.name)}</option>`
+    ).join("");
+    document.getElementById("simTitle").value = "";
+    document.getElementById("simDesc").value = "";
+    document.getElementById("simFileInput").value = "";
+    document.getElementById("fileDropLabel").textContent = "לחץ לבחירת קובץ .html או גרור אותו לכאן";
+    document.getElementById("uploadStatus").textContent = "";
+    selectedFile = null;
+    openModal("modalUpload");
+  };
+
+  const dropZone = document.getElementById("fileDropZone");
+  const fileInput = document.getElementById("simFileInput");
+  dropZone.onclick = () => fileInput.click();
+  fileInput.onchange = () => {
+    if (fileInput.files[0]) {
+      selectedFile = fileInput.files[0];
+      document.getElementById("fileDropLabel").textContent = "נבחר קובץ: " + selectedFile.name;
+      if (!document.getElementById("simTitle").value) {
+        document.getElementById("simTitle").value = selectedFile.name.replace(/\.html?$/i, "");
+      }
+    }
+  };
+  dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add("dragover"); };
+  dropZone.ondragleave = () => dropZone.classList.remove("dragover");
+  dropZone.ondrop = e => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) {
+      selectedFile = e.dataTransfer.files[0];
+      document.getElementById("fileDropLabel").textContent = "נבחר קובץ: " + selectedFile.name;
+      if (!document.getElementById("simTitle").value) {
+        document.getElementById("simTitle").value = selectedFile.name.replace(/\.html?$/i, "");
+      }
+    }
+  };
+
+  document.getElementById("submitUploadBtn").onclick = async () => {
+    const courseId = document.getElementById("simCourseSelect").value;
+    const title = document.getElementById("simTitle").value.trim();
+    const description = document.getElementById("simDesc").value.trim();
+    const status = document.getElementById("uploadStatus");
+
+    if (!title || !selectedFile) {
+      status.className = "status-msg err";
+      status.textContent = "נא לבחור קובץ HTML ולהזין כותרת.";
+      return;
+    }
+
+    const btn = document.getElementById("submitUploadBtn");
+    btn.disabled = true;
+    status.className = "status-msg";
+    status.textContent = "מעלה את ההדמיה לענן...";
+
+    try {
+      const base64Content = await fileToBase64(selectedFile);
+      const filePath = `${courseId}/sim-${Date.now().toString(36)}.html`;
+
+      const uploadRes = await ghRequest(filePath, {
+        method: "PUT",
+        body: JSON.stringify({
+          message: `Upload simulation: ${title}`,
+          content: base64Content
+        })
+      });
+      if (!uploadRes.ok) {
+        const errObj = await uploadRes.json().catch(() => ({}));
+        throw new Error(errObj.message || "שגיאה בהעלאת הקובץ");
+      }
+
+      const course = data.courses.find(c => c.id === courseId);
+      course.simulations = course.simulations || [];
+      course.simulations.push({ title, file: filePath, description });
+
+      await saveSimulationsIndex(`Register simulation: ${title}`);
+      renderCourses();
+      closeModal("modalUpload");
+    } catch (e) {
+      status.className = "status-msg err";
+      status.textContent = e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  async function deleteSim(courseId, filePath) {
+    if (!confirm("למחוק את ההדמיה הזו מהספרייה?")) return;
+    const course = data.courses.find(c => c.id === courseId);
+    if (!course) return;
+    course.simulations = (course.simulations || []).filter(s => s.file !== filePath);
+    renderCourses();
+    try {
+      await saveSimulationsIndex(`Remove simulation: ${filePath}`);
+      const check = await ghRequest(filePath);
+      if (check.ok) {
+        const obj = await check.json();
+        await ghRequest(filePath, {
+          method: "DELETE",
+          body: JSON.stringify({ message: `Delete file: ${filePath}`, sha: obj.sha })
+        });
+      }
+    } catch (e) {
+      alert("שגיאה במחיקה: " + e.message);
+    }
+  }
+
+  async function deleteCourse(courseId) {
+    const course = data.courses.find(c => c.id === courseId);
+    if (!course) return;
+    if ((course.simulations || []).length > 0) {
+      alert("ניתן למחוק קורס רק לאחר מחיקת ההדמיות שבתוכו.");
+      return;
+    }
+    if (!confirm(`למחוק את הקורס "${course.name}"?`)) return;
+    data.courses = data.courses.filter(c => c.id !== courseId);
+    if (activeCourse === courseId) activeCourse = "all";
+    renderTabs();
+    renderCourses();
+    try {
+      await saveSimulationsIndex(`Delete course: ${course.name}`);
+    } catch (e) {
+      alert("שגיאה במחיקת הקורס: " + e.message);
+    }
+  }
+
+  document.getElementById("closeViewer").onclick = () => {
+    document.getElementById("viewer").classList.remove("open");
+    document.getElementById("simFrame").removeAttribute("srcdoc");
+    document.getElementById("simFrame").src = "about:blank";
+  };
+  document.getElementById("hideBarBtn").onclick = () => {
+    document.getElementById("viewerBar").classList.add("hidden");
+    document.getElementById("restoreBarBtn").classList.add("visible");
+  };
+  document.getElementById("restoreBarBtn").onclick = () => {
+    document.getElementById("viewerBar").classList.remove("hidden");
+    document.getElementById("restoreBarBtn").classList.remove("visible");
+  };
+  document.getElementById("searchInput").oninput = renderCourses;
+
+  loadLibrary();
+</script>
+</body>
+</html>
