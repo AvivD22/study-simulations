@@ -8,14 +8,36 @@
     :root {
       --bg: #f8fafc;
       --card: #ffffff;
+      --surface-subtle: #f1f5f9;
       --text: #0f172a;
       --muted: #64748b;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
       --danger: #dc2626;
+      --danger-bg: #fef2f2;
       --success: #16a34a;
       --border: #e2e8f0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-hover: 0 8px 20px rgba(15,23,42,0.07);
+      --drop-hover-bg: #eff6ff;
       --radius: 14px;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b1120;
+      --card: #131c31;
+      --surface-subtle: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --danger: #f87171;
+      --danger-bg: rgba(239, 68, 68, 0.14);
+      --success: #22c55e;
+      --border: #26334d;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-hover: 0 8px 24px rgba(0,0,0,0.45);
+      --drop-hover-bg: rgba(59, 130, 246, 0.12);
     }
     * { box-sizing: border-box; }
     body {
@@ -24,6 +46,7 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
+      transition: background 0.15s, color 0.15s;
     }
     header {
       background: var(--card);
@@ -52,6 +75,8 @@
     .search-box {
       padding: 9px 14px;
       border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
       border-radius: 10px;
       font-size: 0.92rem;
       width: 240px;
@@ -71,13 +96,17 @@
       align-items: center;
       gap: 6px;
     }
-    .btn:hover { background: #f1f5f9; }
+    .btn:hover:not(:disabled) { background: var(--surface-subtle); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-primary {
       background: var(--primary);
       color: #fff;
       border-color: var(--primary);
     }
-    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
     .btn-success {
       background: var(--success);
       color: #fff;
@@ -92,7 +121,10 @@
       cursor: pointer;
       font-size: 0.85rem;
     }
-    .btn-danger-ghost:hover { color: var(--danger); background: #fef2f2; }
+    .btn-danger-ghost:hover {
+      color: var(--danger);
+      background: var(--danger-bg);
+    }
     .tabs {
       display: flex;
       flex-wrap: wrap;
@@ -141,12 +173,12 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: var(--shadow);
       transition: transform 0.15s, box-shadow 0.15s;
     }
     .card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(15,23,42,0.07);
+      box-shadow: var(--shadow-hover);
     }
     .card-top {
       display: flex;
@@ -163,13 +195,6 @@
       gap: 8px;
       padding-top: 10px;
       border-top: 1px solid var(--border);
-    }
-    .status-select {
-      padding: 6px 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 0.82rem;
-      background: var(--bg);
     }
     .empty-state {
       background: var(--card);
@@ -195,7 +220,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(15, 23, 42, 0.6);
       display: none;
       align-items: center;
       justify-content: center;
@@ -205,11 +230,13 @@
     .modal-backdrop.open { display: flex; }
     .modal {
       background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
       border-radius: 16px;
       width: 100%;
       max-width: 460px;
       padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.28);
     }
     .modal h2 { margin: 0 0 8px; font-size: 1.25rem; }
     .modal p.hint { margin: 0 0 16px; color: var(--muted); font-size: 0.88rem; }
@@ -224,6 +251,8 @@
       width: 100%;
       padding: 10px 12px;
       border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
       border-radius: 10px;
       font-size: 0.95rem;
       font-family: inherit;
@@ -239,7 +268,7 @@
     }
     .file-drop:hover, .file-drop.dragover {
       border-color: var(--primary);
-      background: #eff6ff;
+      background: var(--drop-hover-bg);
     }
     .modal-actions {
       display: flex;
@@ -271,13 +300,10 @@
       color: #fff;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       padding: 0 14px;
-      gap: 10px;
+      gap: 12px;
       font-size: 0.9rem;
     }
-    .viewer-bar.hidden { display: none; }
-    .viewer-actions { display: flex; align-items: center; gap: 8px; }
     .bar-btn {
       background: rgba(255,255,255,0.14);
       color: #fff;
@@ -286,24 +312,8 @@
       border-radius: 7px;
       cursor: pointer;
       font-size: 0.85rem;
-      text-decoration: none;
     }
     .bar-btn:hover { background: rgba(255,255,255,0.24); }
-    .floating-restore {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 10000;
-      background: rgba(15,23,42,0.82);
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      display: none;
-    }
-    .floating-restore.visible { display: block; }
     iframe { flex: 1; width: 100%; height: 100%; border: none; }
     .hidden { display: none !important; }
   </style>
@@ -316,6 +326,7 @@
       <h1>ספריית ההדמיות שלי</h1>
       <div class="toolbar">
         <input id="searchInput" class="search-box" type="search" placeholder="חיפוש הדמיה..." />
+        <button id="themeToggleBtn" class="btn" title="החלף ערכת נושא">🌙 מצב כהה</button>
         <button id="btnAddCourse" class="btn hidden">+ קורס חדש</button>
         <button id="btnUploadSim" class="btn btn-primary hidden">+ העלאת הדמיה</button>
         <button id="btnAdmin" class="btn">הגדרות חיבור</button>
@@ -402,27 +413,43 @@
 
 <!-- מסך צפייה בהדמיה -->
 <div id="viewer" class="viewer">
-  <div id="viewerBar" class="viewer-bar">
-    <div class="viewer-actions">
-      <button id="closeViewer" class="bar-btn">→ חזרה לקורסים</button>
-      <strong id="viewerTitle"></strong>
-    </div>
-    <div class="viewer-actions">
-      <button id="openNewTabBtn" class="bar-btn">לשונית חדשה ↗</button>
-      <button id="hideBarBtn" class="bar-btn">מסך נקי</button>
-    </div>
+  <div class="viewer-bar">
+    <button id="closeViewer" class="bar-btn">→ חזרה לקורסים</button>
+    <strong id="viewerTitle"></strong>
   </div>
-  <button id="restoreBarBtn" class="floating-restore">הצג סרגל</button>
   <iframe id="simFrame" title="תצוגת הדמיה"></iframe>
 </div>
 
 <script>
   const CFG_KEY = "sim_portal_gh_cfg_v1";
-  const PROGRESS_KEY = "sim_portal_progress_v1";
+  const THEME_KEY = "sim_portal_theme_v1";
   let data = { courses: [] };
   let activeCourse = "all";
   let selectedFile = null;
-  let currentViewerUrl = "";
+
+  function applyTheme(theme) {
+    const isDark = theme === "dark";
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+    const btn = document.getElementById("themeToggleBtn");
+    if (btn) btn.textContent = isDark ? "☀️ מצב בהיר" : "🌙 מצב כהה";
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) {
+      applyTheme(saved);
+    } else {
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(prefersDark ? "dark" : "light");
+    }
+  }
+
+  document.getElementById("themeToggleBtn").onclick = () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  };
 
   function getCfg() {
     try { return JSON.parse(localStorage.getItem(CFG_KEY) || "null"); }
@@ -553,17 +580,6 @@
     renderCourses();
   }
 
-  function getStatuses() {
-    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}"); }
-    catch { return {}; }
-  }
-
-  function setStatus(file, status) {
-    const s = getStatuses();
-    s[file] = status;
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(s));
-  }
-
   function renderTabs() {
     const tabsEl = document.getElementById("courseTabs");
     if (!data.courses || !data.courses.length) {
@@ -587,7 +603,6 @@
   function renderCourses() {
     const content = document.getElementById("content");
     const query = document.getElementById("searchInput").value.trim().toLowerCase();
-    const statuses = getStatuses();
     const cfg = getCfg();
     const isAdmin = Boolean(cfg && cfg.token);
 
@@ -620,7 +635,6 @@
 
       const cards = course.simulations.length
         ? `<div class="grid">${course.simulations.map(sim => {
-            const st = statuses[sim.file] || "new";
             const delSimBtn = isAdmin
               ? `<button class="btn-danger-ghost" title="מחק הדמיה" onclick="deleteSim('${escapeHtml(course.id)}', '${escapeHtml(sim.file)}')">✕</button>`
               : "";
@@ -635,11 +649,7 @@
                 </div>
                 <div class="card-footer">
                   <button class="btn btn-primary" onclick="openSim('${escapeHtml(sim.file)}', '${escapeHtml(sim.title)}')">פתח הדמיה</button>
-                  <select class="status-select" onchange="setStatus('${escapeHtml(sim.file)}', this.value)">
-                    <option value="new" ${st === "new" ? "selected" : ""}>טרם נלמד</option>
-                    <option value="progress" ${st === "progress" ? "selected" : ""}>בתהליך</option>
-                    <option value="done" ${st === "done" ? "selected" : ""}>הושלם ✓</option>
-                  </select>
+                  <button class="btn" onclick="downloadSim('${escapeHtml(sim.file)}', '${escapeHtml(sim.title)}', this)">⬇ הורדה</button>
                 </div>
               </div>`;
           }).join("")}</div>`
@@ -660,12 +670,9 @@
     const frame = document.getElementById("simFrame");
     document.getElementById("viewerTitle").textContent = title;
     document.getElementById("viewer").classList.add("open");
-    document.getElementById("viewerBar").classList.remove("hidden");
-    document.getElementById("restoreBarBtn").classList.remove("visible");
 
     frame.removeAttribute("srcdoc");
     frame.src = "about:blank";
-    currentViewerUrl = "./" + file;
 
     try {
       const check = await fetch("./" + file + "?t=" + Date.now());
@@ -675,17 +682,13 @@
       }
     } catch {}
 
-    // גיבוי מיידי דרך API אם האתר עדיין מתעדכן ברקע
     const cfg = getCfg();
     if (cfg && cfg.token) {
       try {
         const apiRes = await ghRequest(file);
         if (apiRes.ok) {
           const obj = await apiRes.json();
-          const html = base64ToUtf8(obj.content);
-          frame.srcdoc = html;
-          const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-          currentViewerUrl = URL.createObjectURL(blob);
+          frame.srcdoc = base64ToUtf8(obj.content);
           return;
         }
       } catch {}
@@ -693,9 +696,55 @@
     frame.src = "./" + file;
   }
 
-  document.getElementById("openNewTabBtn").onclick = () => {
-    if (currentViewerUrl) window.open(currentViewerUrl, "_blank", "noopener");
-  };
+  async function downloadSim(file, title, btnEl) {
+    const originalText = btnEl.textContent;
+    btnEl.disabled = true;
+    btnEl.textContent = "מוריד...";
+    try {
+      let htmlText = null;
+      try {
+        const res = await fetch("./" + file + "?t=" + Date.now());
+        if (res.ok) {
+          htmlText = await res.text();
+        }
+      } catch {}
+
+      if (htmlText === null) {
+        const cfg = getCfg();
+        if (cfg && cfg.token) {
+          const apiRes = await ghRequest(file);
+          if (apiRes.ok) {
+            const obj = await apiRes.json();
+            htmlText = base64ToUtf8(obj.content);
+          }
+        }
+      }
+
+      if (htmlText === null) {
+        throw new Error("הקובץ עדיין לא זמין להורדה, נסה שוב בעוד מספר שניות.");
+      }
+
+      const safeName = (title || "simulation")
+        .replace(/[\\/:*?"<>|]/g, "-")
+        .trim() || "simulation";
+      const fileName = safeName.toLowerCase().endsWith(".html") ? safeName : `${safeName}.html`;
+
+      const blob = new Blob([htmlText], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      alert(e.message || "שגיאה בהורדת הקובץ");
+    } finally {
+      btnEl.disabled = false;
+      btnEl.textContent = originalText;
+    }
+  }
 
   function openModal(id) { document.getElementById(id).classList.add("open"); }
   function closeModal(id) { document.getElementById(id).classList.remove("open"); }
@@ -914,16 +963,9 @@
     document.getElementById("simFrame").removeAttribute("srcdoc");
     document.getElementById("simFrame").src = "about:blank";
   };
-  document.getElementById("hideBarBtn").onclick = () => {
-    document.getElementById("viewerBar").classList.add("hidden");
-    document.getElementById("restoreBarBtn").classList.add("visible");
-  };
-  document.getElementById("restoreBarBtn").onclick = () => {
-    document.getElementById("viewerBar").classList.remove("hidden");
-    document.getElementById("restoreBarBtn").classList.remove("visible");
-  };
   document.getElementById("searchInput").oninput = renderCourses;
 
+  initTheme();
   loadLibrary();
 </script>
 </body>
