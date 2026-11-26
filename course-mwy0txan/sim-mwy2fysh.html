@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>חתך רוחב בחוט השדרה — מבנה וכיווני מידע</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Heebo & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Heebo', 'Inter', 'sans-serif'],
+            en: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Heebo', 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .ltr-term {
+      direction: ltr;
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+    }
+    .svg-clickable {
+      cursor: pointer;
+      transition: opacity 0.2s ease, filter 0.2s ease;
+    }
+    .svg-clickable:hover {
+      filter: brightness(0.95) drop-shadow(0 2px 5px rgba(15, 23, 42, 0.16));
+    }
+    .callout-box {
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .callout-box:hover {
+      filter: brightness(0.97);
+    }
+    .callout-selected {
+      filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.24));
+    }
+    .shape-selected {
+      filter: drop-shadow(0 0 8px rgba(15, 23, 42, 0.28));
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+
+  <!-- ======================================================================= -->
+  <!-- CLEAN HEADER                                                            -->
+  <!-- ======================================================================= -->
+  <header class="bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+          חתך רוחב בחוט השדרה — מבנה וכיווני מידע
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">
+          לחצו על כפתורי הזרימה כדי לראות מה עולה מהגוף למוח ומה יורד מהמוח לגוף, או לחצו על כל חלק בחתך
+        </p>
+      </div>
+
+      <!-- High-Contrast Direction Legend -->
+      <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 text-sky-800 border border-sky-200">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+          ⬆️ עולה: מהגוף אל המוח (תחושתי)
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-800 border border-rose-200">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          ⬇️ יורד: מהמוח אל הגוף (מוטורי)
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================= -->
+  <!-- TWO-PANEL WORKSPACE (~65% Diagram Left/Center | ~35% Controls Right)    -->
+  <!-- ======================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- ===================================================================== -->
+    <!-- PANEL 1: MAIN 2D SVG DIAGRAM AREA (~65% -> 8 of 12 columns)           -->
+    <!-- ===================================================================== -->
+    <section class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col gap-3">
+
+      <!-- Optional Toggle Switch Above Diagram: Thoracic Lateral Horn -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+          <input id="thoracicToggle" type="checkbox" onchange="toggleThoracicHorn(this.checked)" class="sr-only peer" />
+          <div class="relative w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-amber-500 transition-colors after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:-translate-x-5"></div>
+          <span class="text-xs sm:text-sm font-semibold text-slate-800">
+            הצג חתך חזי (<span class="ltr-term">Thoracic</span>) עם קרן צידית (<span class="ltr-term">Lateral horn</span> — אוטונומי)
+          </span>
+        </label>
+
+        <!-- Matter Quick Buttons (Gray vs White Matter) -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <button id="matterBtn-gray_matter" onclick="selectStructure('gray_matter')" class="matter-btn px-2.5 py-1 rounded-lg bg-stone-200/80 hover:bg-stone-300/80 text-stone-800 font-semibold transition">
+            חומר אפור (גופי תאים)
+          </button>
+          <button id="matterBtn-white_matter" onclick="selectStructure('white_matter')" class="matter-btn px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold transition">
+            חומר לבן (סיבים עם מיאלין)
+          </button>
+        </div>
+      </div>
+
+      <!-- Strictly 2D SVG Diagram (Wide 880x540 Canvas for Zero-Overlap Labels) -->
+      <div class="w-full overflow-x-auto">
+        <svg id="spinalSvg" viewBox="0 0 880 540" class="w-full h-auto select-none bg-slate-50/70 rounded-xl border border-slate-200/80">
+          <defs>
+            <!-- Clean Arrowheads for Upward (Blue) and Downward (Red) Tracks -->
+            <marker id="arrowUpBlue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7" />
+            </marker>
+            <marker id="arrowDownRed" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48" />
+            </marker>
+          </defs>
+
+          <!-- =============================================================== -->
+          <!-- RIGHT SIDE: VERTICAL BRAIN + SPINAL CORD SCHEMATIC              -->
+          <!-- =============================================================== -->
+          <g id="verticalBrainCordGroup">
+            <!-- Connection neck between Brain and Spinal Cord -->
+            <rect x="780" y="70" width="32" height="32" fill="#cbd5e1" />
+
+            <!-- Brain Box at Top -->
+            <rect x="730" y="20" width="132" height="52" rx="12" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+            <text x="796" y="43" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">המוח (Brain)</text>
+            <text x="796" y="60" text-anchor="middle" fill="#94a3b8" font-size="10">קליפת המוח וגזע המוח</text>
+
+            <!-- Vertical Spinal Cord Schematic Bar -->
+            <rect x="768" y="96" width="56" height="404" rx="14" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+            <text x="796" y="518" text-anchor="middle" fill="#334155" font-size="11" font-weight="700">חוט השדרה</text>
+            <text x="796" y="531" text-anchor="middle" fill="#64748b" font-size="9.5" class="ltr-term">(Spinal Cord)</text>
+
+            <!-- Horizontal Slice Cut Indicator linking Vertical Bar to Center Cross-Section -->
+            <rect x="764" y="264" width="64" height="12" rx="3" fill="#fef08a" stroke="#eab308" stroke-width="1.5" opacity="0.85" />
+            <line x1="764" y1="270" x2="564" y2="270" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="4 4" />
+
+            <!-- Permanent Blue Upward Track (Body -> Brain) -->
+            <line x1="784" y1="484" x2="784" y2="82" stroke="#0284c7" stroke-width="3" marker-end="url(#arrowUpBlue)" />
+            <!-- Permanent Red Downward Track (Brain -> Body) -->
+            <line x1="808" y1="82" x2="808" y2="484" stroke="#e11d48" stroke-width="3" marker-end="url(#arrowDownRed)" />
+
+            <!-- Permanent Directional Reference Labels (Positioned cleanly to the left of vertical bar) -->
+            <g transform="translate(652, 108)">
+              <rect x="0" y="0" width="110" height="44" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.3" />
+              <text x="55" y="17" text-anchor="middle" fill="#0369a1" font-size="10" font-weight="800">⬆️ עולה: מהגוף</text>
+              <text x="55" y="30" text-anchor="middle" fill="#0369a1" font-size="10" font-weight="800">אל המוח</text>
+              <text x="55" y="40" text-anchor="middle" fill="#0284c7" font-size="8.5">(תחושתי)</text>
+            </g>
+
+            <g transform="translate(652, 412)">
+              <rect x="0" y="0" width="110" height="44" rx="8" fill="#ffe4e6" stroke="#fb7185" stroke-width="1.3" />
+              <text x="55" y="17" text-anchor="middle" fill="#be123c" font-size="10" font-weight="800">⬇️ יורד: מהמוח</text>
+              <text x="55" y="30" text-anchor="middle" fill="#be123c" font-size="10" font-weight="800">אל הגוף</text>
+              <text x="55" y="40" text-anchor="middle" fill="#e11d48" font-size="8.5">(מוטורי)</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- CENTER: 2D SPINAL CORD CROSS-SECTION                            -->
+          <!-- =============================================================== -->
+          <g id="crossSectionCenter">
+            <!-- Orientation Labels: Dorsal (Top) & Ventral (Bottom) -->
+            <text x="415" y="34" text-anchor="middle" fill="#334155" font-size="13" font-weight="800">גבי / אחורי (Dorsal)</text>
+            <text x="415" y="514" text-anchor="middle" fill="#334155" font-size="13" font-weight="800">גחוני / קדמי (Ventral)</text>
+
+            <!-- White Matter Outer Oval -->
+            <ellipse id="shape-white_matter" cx="415" cy="270" rx="138" ry="182"
+              onclick="selectStructure('white_matter')" class="svg-clickable"
+              fill="#f1f5f9" stroke="#94a3b8" stroke-width="2.5" />
+
+            <!-- Dorsal Median Sulcus & Ventral Median Fissure -->
+            <line x1="415" y1="88" x2="415" y2="220" stroke="#94a3b8" stroke-width="2.2" />
+            <path d="M 409 452 L 415 328 L 421 452" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" />
+
+            <!-- CLICKABLE WHITE MATTER COLUMNS (Right Half & Top/Bottom Zones) -->
+            <!-- 1. Dorsal Column (עמודה גבית) -->
+            <path id="shape-dorsal_column" onclick="selectStructure('dorsal_column')" class="svg-clickable"
+              d="M 374 96 Q 415 88 456 96 L 444 212 L 386 212 Z"
+              fill="#bae6fd" fill-opacity="0.55" stroke="#38bdf8" stroke-width="1.5" />
+
+            <!-- 2. Lateral Column (עמודה צידית) -->
+            <path id="shape-lateral_column" onclick="selectStructure('lateral_column')" class="svg-clickable"
+              d="M 472 175 C 516 175, 546 215, 546 268 C 546 296, 536 318, 518 332 L 470 302 Z"
+              fill="#fecdd3" fill-opacity="0.55" stroke="#fb7185" stroke-width="1.5" />
+
+            <!-- 3. Ventrolateral Column (עמודה ונטרולטרלית) -->
+            <path id="shape-ventrolateral_column" onclick="selectStructure('ventrolateral_column')" class="svg-clickable"
+              d="M 470 305 L 518 334 C 504 374, 480 404, 452 422 L 442 365 Z"
+              fill="#99f6e4" fill-opacity="0.55" stroke="#14b8a6" stroke-width="1.5" />
+
+            <!-- 4. Ventral Column (עמודה גחונית) -->
+            <path id="shape-ventral_column" onclick="selectStructure('ventral_column')" class="svg-clickable"
+              d="M 380 368 L 408 332 L 422 332 L 450 368 L 445 438 Q 415 446 385 438 Z"
+              fill="#fecdd3" fill-opacity="0.45" stroke="#fb7185" stroke-width="1.5" />
+
+            <!-- INNER GRAY MATTER BUTTERFLY (חומר אפור) -->
+            <path id="shape-gray_matter" onclick="selectStructure('gray_matter')" class="svg-clickable"
+              d="M 366 142 C 382 142, 386 196, 392 222 L 438 222 C 444 196, 448 142, 464 142 C 482 142, 486 205, 474 248 L 474 288 C 492 318, 488 386, 458 386 C 438 386, 440 332, 436 314 L 394 314 C 390 332, 392 386, 372 386 C 342 386, 338 318, 356 288 L 356 248 C 344 205, 348 142, 366 142 Z"
+              fill="#a8a29e" stroke="#57534e" stroke-width="2.2" />
+
+            <!-- CLICKABLE GRAY MATTER HORNS (Right Side) -->
+            <!-- Dorsal Horn (קרן גבית) -->
+            <ellipse id="shape-dorsal_horn" cx="464" cy="186" rx="16" ry="38"
+              onclick="selectStructure('dorsal_horn')" class="svg-clickable"
+              fill="#0284c7" fill-opacity="0.32" stroke="#0284c7" stroke-width="1.8" />
+
+            <!-- Ventral Horn (קרן גחונית) -->
+            <ellipse id="shape-ventral_horn" cx="460" cy="346" rx="20" ry="34"
+              onclick="selectStructure('ventral_horn')" class="svg-clickable"
+              fill="#e11d48" fill-opacity="0.32" stroke="#e11d48" stroke-width="1.8" />
+
+            <!-- Optional Thoracic Lateral Horn (קרן צידית - אוטונומי) -->
+            <g id="lateralHornGroup" class="hidden">
+              <!-- Left & Right Lateral Horn Protrusions -->
+              <path d="M 355 252 L 334 268 L 355 284 Z" fill="#a8a29e" stroke="#57534e" stroke-width="2" />
+              <path id="shape-lateral_horn" onclick="selectStructure('lateral_horn')" class="svg-clickable"
+                d="M 474 250 L 498 268 L 474 286 Z"
+                fill="#f59e0b" stroke="#b45309" stroke-width="2" />
+            </g>
+
+            <!-- Central Canal -->
+            <circle cx="415" cy="268" r="4.5" fill="#f8fafc" stroke="#57534e" stroke-width="1.5" />
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- LEFT SIDE: PERIPHERAL NERVOUS SYSTEM (ROOTS, DRG, NERVE, BODY)  -->
+          <!-- =============================================================== -->
+          <g id="peripheralGroup">
+            <!-- Dorsal Root (שורש גבי) -->
+            <path id="shape-dorsal_root" onclick="selectStructure('dorsal_root')" class="svg-clickable"
+              d="M 156 264 Q 186 196 226 192 Q 285 186 364 176"
+              fill="none" stroke="#0284c7" stroke-width="9" stroke-linecap="round" />
+
+            <!-- Dorsal Root Ganglion (DRG) Oval Bulge + Sensory Soma -->
+            <g id="shape-drg" onclick="selectStructure('drg')" class="svg-clickable">
+              <ellipse cx="226" cy="192" rx="22" ry="15" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" />
+              <!-- Sensory neuron cell body inside DRG -->
+              <circle cx="226" cy="192" r="5" fill="#0284c7" />
+            </g>
+
+            <!-- Ventral Root (שורש גחוני) -->
+            <path id="shape-ventral_root" onclick="selectStructure('ventral_root')" class="svg-clickable"
+              d="M 364 348 Q 285 352 226 344 Q 186 338 156 276"
+              fill="none" stroke="#e11d48" stroke-width="9" stroke-linecap="round" />
+
+            <!-- Motor Neuron Cell Body inside Left Ventral Horn -->
+            <circle cx="368" cy="348" r="6.5" fill="#be123c" stroke="#ffe4e6" stroke-width="1.5" />
+
+            <!-- Interneuron inside Left Gray Matter (for Stretch Reflex) -->
+            <circle id="reflexInterneuron" cx="368" cy="264" r="5.5" fill="#7c3aed" stroke="#ede9fe" stroke-width="1.5" opacity="0.55" />
+
+            <!-- Mixed Spinal Nerve (עצב שדרתי מעורב) -->
+            <path id="shape-spinal_nerve" onclick="selectStructure('spinal_nerve')" class="svg-clickable"
+              d="M 106 270 L 160 270"
+              fill="none" stroke="#7c3aed" stroke-width="13" stroke-linecap="round" />
+
+            <!-- Branch to Sensory Receptor (Top-Left) -->
+            <path d="M 106 266 L 72 192" fill="none" stroke="#0284c7" stroke-width="4" stroke-linecap="round" />
+            <g transform="translate(14, 146)">
+              <rect x="0" y="0" width="114" height="44" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8" />
+              <text x="57" y="19" text-anchor="middle" fill="#0c4a6e" font-size="11" font-weight="800">קולטן תחושתי בגוף</text>
+              <text x="57" y="34" text-anchor="middle" fill="#0369a1" font-size="9.5" class="ltr-term">Sensory receptor</text>
+            </g>
+
+            <!-- Branch to Skeletal Muscle (Bottom-Left) -->
+            <path d="M 106 274 L 72 348" fill="none" stroke="#e11d48" stroke-width="4" stroke-linecap="round" />
+            <g id="skeletalMuscleBox" transform="translate(14, 348)">
+              <rect x="0" y="0" width="114" height="44" rx="10" fill="#ffe4e6" stroke="#e11d48" stroke-width="1.8" />
+              <text x="57" y="19" text-anchor="middle" fill="#881337" font-size="11" font-weight="800">שריר שלד</text>
+              <text x="57" y="34" text-anchor="middle" fill="#be123c" font-size="9.5" class="ltr-term">Skeletal muscle</text>
+            </g>
+
+            <!-- CLEAN NON-OVERLAPPING LEFT CALLOUT LABELS -->
+            <!-- DRG Label -->
+            <g data-structure="drg" onclick="selectStructure('drg')" class="callout-box">
+              <line x1="205" y1="138" x2="222" y2="177" stroke="#0284c7" stroke-width="1.3" />
+              <rect x="132" y="96" width="122" height="42" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+              <text x="193" y="114" text-anchor="middle" fill="#0f172a" font-size="10.5" font-weight="700">גנגליון השורש הגבי</text>
+              <text x="193" y="129" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700" class="ltr-term">DRG (גופי תאים)</text>
+            </g>
+
+            <!-- Dorsal Root Label -->
+            <g data-structure="dorsal_root" onclick="selectStructure('dorsal_root')" class="callout-box">
+              <line x1="296" y1="138" x2="285" y2="184" stroke="#0284c7" stroke-width="1.3" />
+              <rect x="260" y="96" width="102" height="42" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+              <text x="311" y="114" text-anchor="middle" fill="#0f172a" font-size="10.5" font-weight="700">שורש גבי</text>
+              <text x="311" y="129" text-anchor="middle" fill="#0284c7" font-size="9.5" class="ltr-term">Dorsal root ⬆️</text>
+            </g>
+
+            <!-- Mixed Spinal Nerve Label -->
+            <g data-structure="spinal_nerve" onclick="selectStructure('spinal_nerve')" class="callout-box">
+              <line x1="134" y1="246" x2="134" y2="263" stroke="#7c3aed" stroke-width="1.3" />
+              <rect x="74" y="206" width="114" height="40" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5" />
+              <text x="131" y="223" text-anchor="middle" fill="#0f172a" font-size="10.5" font-weight="700">עצב שדרתי (מעורב)</text>
+              <text x="131" y="237" text-anchor="middle" fill="#7c3aed" font-size="9" class="ltr-term">Spinal nerve ⬆️⬇️</text>
+            </g>
+
+            <!-- Ventral Root Label -->
+            <g data-structure="ventral_root" onclick="selectStructure('ventral_root')" class="callout-box">
+              <line x1="245" y1="406" x2="255" y2="352" stroke="#e11d48" stroke-width="1.3" />
+              <rect x="176" y="406" width="112" height="42" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5" />
+              <text x="232" y="424" text-anchor="middle" fill="#0f172a" font-size="10.5" font-weight="700">שורש גחוני</text>
+              <text x="232" y="439" text-anchor="middle" fill="#e11d48" font-size="9.5" class="ltr-term">Ventral root ⬇️</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- NON-OVERLAPPING RIGHT CALLOUT COLUMN (x = 558..646)             -->
+          <!-- =============================================================== -->
+          <g id="rightCalloutsColumn">
+            <!-- 1. Dorsal Column -->
+            <g data-structure="dorsal_column" onclick="selectStructure('dorsal_column')" class="callout-box">
+              <line x1="556" y1="74" x2="432" y2="128" stroke="#0284c7" stroke-width="1.3" />
+              <rect x="556" y="54" width="90" height="40" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+              <text x="601" y="71" text-anchor="middle" fill="#0f172a" font-size="10" font-weight="700">עמודה גבית</text>
+              <text x="601" y="85" text-anchor="middle" fill="#0284c7" font-size="8.5" class="ltr-term">Dorsal col. ⬆️</text>
+            </g>
+
+            <!-- 2. Dorsal Horn -->
+            <g data-structure="dorsal_horn" onclick="selectStructure('dorsal_horn')" class="callout-box">
+              <line x1="556" y1="134" x2="474" y2="176" stroke="#0284c7" stroke-width="1.3" />
+              <rect x="556" y="114" width="90" height="40" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+              <text x="601" y="131" text-anchor="middle" fill="#0f172a" font-size="10" font-weight="700">קרן גבית</text>
+              <text x="601" y="145" text-anchor="middle" fill="#64748b" font-size="8.5" class="ltr-term">Dorsal horn</text>
+            </g>
+
+            <!-- 3. Lateral Column -->
+            <g data-structure="lateral_column" onclick="selectStructure('lateral_column')" class="callout-box">
+              <line x1="556" y1="194" x2="526" y2="225" stroke="#e11d48" stroke-width="1.3" />
+              <rect x="556" y="174" width="90" height="40" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5" />
+              <text x="601" y="191" text-anchor="middle" fill="#0f172a" font-size="10" font-weight="700">עמודה צידית</text>
+              <text x="601" y="205" text-anchor="middle" fill="#e11d48" font-size="8.5" class="ltr-term">Lateral col. ⬇️</text>
+            </g>
+
+            <!-- 4. Lateral Horn (Shown only when Thoracic toggle is ON) -->
+            <g id="callout-lateral_horn" data-structure="lateral_horn" onclick="selectStructure('lateral_horn')" class="callout-box hidden">
+              <line x1="556" y1="254" x2="496" y2="268" stroke="#d97706" stroke-width="1.5" />
+              <rect x="556" y="234" width="90" height="40" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.8" />
+              <text x="601" y="251" text-anchor="middle" fill="#92400e" font-size="10" font-weight="800">קרן צידית</text>
+              <text x="601" y="265" text-anchor="middle" fill="#b45309" font-size="8.5" class="ltr-term">Lateral horn</text>
+            </g>
+
+            <!-- 5. Ventrolateral Column -->
+            <g data-structure="ventrolateral_column" onclick="selectStructure('ventrolateral_column')" class="callout-box">
+              <line x1="556" y1="316" x2="498" y2="346" stroke="#0d9488" stroke-width="1.3" />
+              <rect x="556" y="296" width="90" height="40" rx="8" fill="#ffffff" stroke="#14b8a6" stroke-width="1.5" />
+              <text x="601" y="313" text-anchor="middle" fill="#0f172a" font-size="9.5" font-weight="700">ונטרולטרלית</text>
+              <text x="601" y="327" text-anchor="middle" fill="#0d9488" font-size="8.5" class="ltr-term">Ventrolateral ⬆️</text>
+            </g>
+
+            <!-- 6. Ventral Horn -->
+            <g data-structure="ventral_horn" onclick="selectStructure('ventral_horn')" class="callout-box">
+              <line x1="556" y1="376" x2="472" y2="356" stroke="#e11d48" stroke-width="1.3" />
+              <rect x="556" y="356" width="90" height="40" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5" />
+              <text x="601" y="373" text-anchor="middle" fill="#0f172a" font-size="10" font-weight="700">קרן גחונית</text>
+              <text x="601" y="387" text-anchor="middle" fill="#64748b" font-size="8.5" class="ltr-term">Ventral horn</text>
+            </g>
+
+            <!-- 7. Ventral Column -->
+            <g data-structure="ventral_column" onclick="selectStructure('ventral_column')" class="callout-box">
+              <line x1="556" y1="436" x2="434" y2="414" stroke="#e11d48" stroke-width="1.3" />
+              <rect x="556" y="416" width="90" height="40" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5" />
+              <text x="601" y="433" text-anchor="middle" fill="#0f172a" font-size="10" font-weight="700">עמודה גחונית</text>
+              <text x="601" y="447" text-anchor="middle" fill="#e11d48" font-size="8.5" class="ltr-term">Ventral col. ⬇️</text>
+            </g>
+          </g>
+
+          <!-- =============================================================== -->
+          <!-- ANIMATED PATHWAY OVERLAY & GLOWING SIGNAL DOTS                  -->
+          <!-- =============================================================== -->
+          <g id="activePathwayLines"></g>
+          <g id="activeSignalDots"></g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PANEL 2: CONTROL & EXPLANATION PANEL (~35% -> 4 of 12 columns)        -->
+    <!-- ===================================================================== -->
+    <aside class="lg:col-span-4 flex flex-col gap-4">
+
+      <!-- Section A: 4 Simple Pathway Flow Buttons -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-2.5">
+        <h2 class="text-base font-extrabold text-slate-900">
+          בחרו מסלול לראות כיוון זרימה
+        </h2>
+
+        <!-- Button 1: Ascending Dorsal Columns -->
+        <button onclick="startPathway(1)" id="pathBtn-1"
+          class="path-btn w-full text-right px-3.5 py-2.5 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100/80 text-slate-900 transition flex items-center justify-between gap-2">
+          <span class="text-xs sm:text-sm font-bold">⬆️ מהגוף למוח: מידע תחושתי (<span class="ltr-term">Dorsal columns</span>)</span>
+        </button>
+
+        <!-- Button 2: Ascending Ventrolateral (Pain & Temp) -->
+        <button onclick="startPathway(2)" id="pathBtn-2"
+          class="path-btn w-full text-right px-3.5 py-2.5 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100/80 text-slate-900 transition flex items-center justify-between gap-2">
+          <span class="text-xs sm:text-sm font-bold">⬆️ מהגוף למוח: כאב וטמפרטורה (<span class="ltr-term">Ventrolateral</span>)</span>
+        </button>
+
+        <!-- Button 3: Descending Motor (Lateral & Ventral) -->
+        <button onclick="startPathway(3)" id="pathBtn-3"
+          class="path-btn w-full text-right px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100/80 text-slate-900 transition flex items-center justify-between gap-2">
+          <span class="text-xs sm:text-sm font-bold">⬇️ מהמוח לגוף: פקודה מוטורית (<span class="ltr-term">Lateral &amp; Ventral</span>)</span>
+        </button>
+
+        <!-- Button 4: Stretch Reflex (Local + Ascending) -->
+        <button onclick="startPathway(4)" id="pathBtn-4"
+          class="path-btn w-full text-right px-3.5 py-2.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100/80 text-slate-900 transition flex items-center justify-between gap-2">
+          <span class="text-xs sm:text-sm font-bold">🔄 רפלקס מתיחה: מעגל מקומי + דיווח למוח</span>
+        </button>
+
+        <!-- Clear / Stop Simulation Button -->
+        <button onclick="clearSimulation()"
+          class="w-full py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition">
+          עצור / נקה הדמיה
+        </button>
+      </div>
+
+      <!-- Section B: Concise Explanation Card (Strictly from Slides 8-13) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-3">
+        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <h2 class="text-base font-extrabold text-slate-900">
+            הסבר קצר (מתוך המצגת)
+          </h2>
+          <span id="infoDirectionBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+            מבנה אנטומי
+          </span>
+        </div>
+
+        <div id="infoCardBody" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+          <h3 id="infoTitle" class="text-sm sm:text-base font-extrabold text-slate-900">
+            חומר אפור וחומר לבן בחוט השדרה
+          </h3>
+          <p id="infoText" class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+            לחצו על אחד מארבעת כפתורי הזרימה למעלה או על כל חלק בחתך כדי לראות את ההסבר מתוך המצגת.
+          </p>
+        </div>
+
+        <!-- Quick Structure Selector Chips -->
+        <div class="pt-1">
+          <div class="text-[11px] font-bold text-slate-500 mb-1.5">או בחרו מבנה מהרשימה:</div>
+          <div id="structureChips" class="flex flex-wrap gap-1.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ======================================================================= -->
+  <!-- JAVASCRIPT LOGIC (EXCLUSIVELY LECTURE SLIDES 8-13 CONTENT)              -->
+  <!-- ======================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. EXACT SLIDES 8-13 DEFINITIONS (NO OUTSIDE BIOLOGICAL DETAILS)
+    // -------------------------------------------------------------------------
+    const SLIDE_FACTS = {
+      gray_matter: {
+        title: 'חומר אפור (Gray matter)',
+        badge: 'חומר אפור',
+        badgeClass: 'bg-stone-200 text-stone-800 border-stone-300',
+        text: 'מכיל בעיקר גופי תאים של נוירונים (מסודר בשכבות).'
+      },
+      white_matter: {
+        title: 'חומר לבן (White matter)',
+        badge: 'חומר לבן',
+        badgeClass: 'bg-slate-200 text-slate-800 border-slate-300',
+        text: 'מכיל בעיקר סיבים (אקסונים), צבעו הלבן נובע ממעטפת המיאלין. מעביר מידע למעלה (למוח) ולמטה (מהמוח).'
+      },
+      dorsal_horn: {
+        title: 'קרן גבית (Dorsal horn)',
+        badge: 'חומר אפור • קלט תחושתי',
+        badgeClass: 'bg-sky-100 text-sky-800 border-sky-200',
+        text: 'מכילה אקסונים של נוירונים המקבלים מידע תחושתי.'
+      },
+      ventral_horn: {
+        title: 'קרן גחונית (Ventral horn)',
+        badge: 'חומר אפור • פלט מוטורי',
+        badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+        text: 'מכילה גופי תאים של נוירונים מוטוריים השולחים אקסונים לשרירי שלד.'
+      },
+      lateral_horn: {
+        title: 'קרן צידית (Lateral horn)',
+        badge: 'חומר אפור • אוטונומי',
+        badgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+        text: 'קיימת ברמה החזית (Thoracic), ומכילה נוירונים השייכים למערכת העצבים האוטונומית.'
+      },
+      dorsal_root: {
+        title: 'שורש גבי (Dorsal root) ו-DRG',
+        badge: '⬆️ מהגוף לחוט השדרה',
+        badgeClass: 'bg-sky-100 text-sky-800 border-sky-200',
+        text: 'השורש הגבי מעביר מידע תחושתי אל חוט השדרה; גופי התאים של נוירונים אלו נמצאים בגנגליון השורש הגבי (DRG) מחוץ ל-CNS.'
+      },
+      drg: {
+        title: 'גנגליון השורש הגבי (Dorsal root ganglion - DRG)',
+        badge: '⬆️ גופי תאים תחושתיים',
+        badgeClass: 'bg-sky-100 text-sky-800 border-sky-200',
+        text: 'השורש הגבי מעביר מידע תחושתי אל חוט השדרה; גופי התאים של נוירונים אלו נמצאים בגנגליון השורש הגבי (DRG) מחוץ ל-CNS.'
+      },
+      ventral_root: {
+        title: 'שורש גחוני (Ventral root)',
+        badge: '⬇️ מחוט השדרה לשריר',
+        badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+        text: 'מעביר פקודות מוטוריות מחוט השדרה אל שרירי השלד.'
+      },
+      spinal_nerve: {
+        title: 'עצב שדרתי (Spinal / Segmental nerve)',
+        badge: '⬆️⬇️ מעורב (31 זוגות)',
+        badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+        text: 'נוצר ממיזוג השורש הגבי והגחוני מחוץ לחוט השדרה, ולכן הוא עצב מעורב (תחושתי ומוטורי). קיימים 31 זוגות.'
+      },
+      dorsal_column: {
+        title: 'עמודה גבית (Dorsal column)',
+        badge: '⬆️ עולה למוח',
+        badgeClass: 'bg-sky-100 text-sky-800 border-sky-200',
+        text: 'חלק מהחומר הלבן; רוב הסיבים התחושתיים (סומטוסנסוריים) עולים בה כלפי מעלה אל המוח המוארך.'
+      },
+      ventrolateral_column: {
+        title: 'עמודה ונטרולטרלית (Ventrolateral column)',
+        badge: '⬆️ עולה למוח',
+        badgeClass: 'bg-teal-100 text-teal-800 border-teal-200',
+        text: 'חלק מהחומר הלבן; מעבירה מידע על טמפרטורה וכאב כלפי מעלה אל המוח.'
+      },
+      lateral_column: {
+        title: 'עמודה צידית (Lateral column)',
+        badge: '⬇️ יורד מהמוח',
+        badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+        text: 'חלק מהחומר הלבן; מכילה סיבים יורדים מהמוח (Lateral corticospinal tract) הקשורים בעיקר לגפיים ולתנועה עדינה.'
+      },
+      ventral_column: {
+        title: 'עמודה גחונית (Ventral column)',
+        badge: '⬇️ יורד מהמוח',
+        badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+        text: 'חלק מהחומר הלבן; מעבירה פקודות מוטוריות יורדות מהמוח השולטות בעיקר בגו וביציבה (וגם מעט מידע תחושתי).'
+      }
+    };
+
+    // -------------------------------------------------------------------------
+    // 2. FOUR ANIMATED PATHWAY DEFINITIONS (2D COORDINATES IN SVG)
+    // -------------------------------------------------------------------------
+    const PATHWAYS = {
+      1: {
+        title: '⬆️ מהגוף למוח: מידע תחושתי (Dorsal columns)',
+        badge: '⬆️ עולה מהגוף למוח',
+        badgeClass: 'bg-sky-100 text-sky-800 border-sky-200',
+        text: 'מידע תחושתי (סומטוסנסורי) מגיע מקולטן תחושתי בגוף דרך העצב השדרתי והשורש הגבי (שגופי התא שלו ב-DRG), נכנס אל העמודה הגבית (Dorsal column) ועולה בה כלפי מעלה (⬆️) אל המוח.',
+        tracks: [
+          {
+            color: '#0284c7',
+            dotFill: '#38bdf8',
+            points: [
+              [72, 190],   // Sensory receptor
+              [106, 266],  // Mixed spinal nerve
+              [156, 264],  // Bifurcation to dorsal root
+              [226, 192],  // DRG soma
+              [364, 176],  // Dorsal root entry
+              [410, 145],  // Dorsal column
+              [784, 270],  // Transfer to vertical cord ascending track
+              [784, 72]    // Rise UP into Brain box!
+            ]
+          }
+        ]
+      },
+      2: {
+        title: '⬆️ מהגוף למוח: כאב וטמפרטורה (Ventrolateral)',
+        badge: '⬆️ עולה מהגוף למוח',
+        badgeClass: 'bg-teal-100 text-teal-800 border-teal-200',
+        text: 'מידע על כאב וטמפרטורה מגיע דרך השורש הגבי (DRG) אל הקרן הגבית (Dorsal horn), חוצה לצד הנגדי אל העמודה הוונטרולטרלית (Ventrolateral column) ועולה בה כלפי מעלה (⬆️) אל המוח.',
+        tracks: [
+          {
+            color: '#0d9488',
+            dotFill: '#f97316',
+            points: [
+              [72, 190],   // Sensory receptor
+              [106, 266],  // Mixed spinal nerve
+              [156, 264],  // Dorsal root
+              [226, 192],  // DRG soma
+              [364, 186],  // Left Dorsal Horn
+              [415, 290],  // Crossing midline (decussation)
+              [485, 365],  // Right Ventrolateral column
+              [784, 270],  // Transfer to vertical cord ascending track
+              [784, 72]    // Rise UP into Brain box!
+            ]
+          }
+        ]
+      },
+      3: {
+        title: '⬇️ מהמוח לגוף: פקודה מוטורית (Lateral & Ventral)',
+        badge: '⬇️ יורד מהמוח לגוף',
+        badgeClass: 'bg-rose-100 text-rose-800 border-rose-200',
+        text: 'פקודות מוטוריות יורדות מהמוח (⬇️) דרך העמודה הצידית (Lateral column — גפיים ותנועה עדינה) והעמודה הגחונית (Ventral column — גו ויציבה), מפעילות את הנוירונים המוטוריים בקרן הגחונית (Ventral horn), ויוצאות דרך השורש הגחוני והעצב השדרתי אל שריר השלד.',
+        tracks: [
+          // Lateral column descending branch
+          {
+            color: '#e11d48',
+            dotFill: '#fb7185',
+            points: [
+              [808, 72],   // Start in Brain box
+              [808, 270],  // Descend down vertical spinal cord track
+              [512, 245],  // Enter Lateral column
+              [368, 348],  // Activate Motor Neuron in Ventral horn
+              [226, 344],  // Exit via Ventral root
+              [156, 276],  // Merge into Spinal nerve
+              [106, 274],  // Spinal nerve
+              [72, 348]    // Skeletal muscle!
+            ]
+          },
+          // Ventral column descending branch
+          {
+            color: '#be123c',
+            dotFill: '#fda4af',
+            points: [
+              [808, 72],   // Start in Brain box
+              [808, 270],  // Descend down vertical spinal cord track
+              [415, 405],  // Enter Ventral column
+              [368, 348],  // Activate Motor Neuron in Ventral horn
+              [226, 344],  // Ventral root
+              [106, 274],  // Spinal nerve
+              [72, 348]    // Skeletal muscle!
+            ]
+          }
+        ]
+      },
+      4: {
+        title: '🔄 רפלקס מתיחה: מעגל מקומי + דיווח למוח',
+        badge: '🔄 מקומי + ⬆️ עולה למוח',
+        badgeClass: 'bg-purple-100 text-purple-800 border-purple-200',
+        text: 'קלט ממתיחת השריר נכנס דרך השורש הגבי (DRG) ומתפצל בו-זמנית: ענף אחד מפעיל מיד את הנוירון המוטורי בקרן הגחונית (ישירות ודרך אינטרנוירון סגול) לכיווץ השריר ללא המתנה למוח, ובמקביל ענף שני עולה בעמודה הגבית (⬆️) לדווח למוח.',
+        tracks: [
+          // Branch 1A: Direct monosynaptic reflex arc to Ventral Horn -> Muscle
+          {
+            color: '#e11d48',
+            dotFill: '#fb7185',
+            points: [
+              [72, 348],   // Muscle spindle receptor
+              [106, 266],  // Mixed spinal nerve
+              [156, 264],  // Dorsal root
+              [226, 192],  // DRG
+              [364, 186],  // Dorsal horn entry
+              [368, 348],  // Direct synapse on Motor Neuron in Ventral horn!
+              [226, 344],  // Ventral root
+              [106, 274],  // Spinal nerve
+              [72, 348]    // Muscle contracts!
+            ]
+          },
+          // Branch 1B: Polysynaptic via purple interneuron
+          {
+            color: '#7c3aed',
+            dotFill: '#c084fc',
+            points: [
+              [364, 186],  // Dorsal horn
+              [368, 264],  // Purple interneuron
+              [368, 348]   // Ventral horn motor neuron
+            ]
+          },
+          // Branch 2: Simultaneous ascending sensory report to Brain (Dorsal column)
+          {
+            color: '#0284c7',
+            dotFill: '#38bdf8',
+            points: [
+              [72, 348],   // Muscle receptor
+              [106, 266],  // Spinal nerve
+              [226, 192],  // DRG
+              [364, 176],  // Dorsal root
+              [410, 145],  // Dorsal column
+              [784, 270],  // Vertical cord ascending track
+              [784, 72]    // Rise UP into Brain box!
+            ]
+          }
+        ]
+      }
+    };
+
+    // -------------------------------------------------------------------------
+    // 3. STATE & INTERACTIVE HANDLERS
+    // -------------------------------------------------------------------------
+    let activePathwayId = null;
+    let selectedStructureKey = null;
+    let animPhase = 0;
+    let lastTime = 0;
+
+    function highlightStructure(key) {
+      // 1. Reset previous callout boxes in SVG
+      document.querySelectorAll('.callout-box').forEach(box => {
+        box.classList.remove('callout-selected');
+        const rect = box.querySelector('rect');
+        const line = box.querySelector('line');
+        if (rect) {
+          if (rect.dataset.origFill) rect.setAttribute('fill', rect.dataset.origFill);
+          if (rect.dataset.origStrokeWidth) rect.setAttribute('stroke-width', rect.dataset.origStrokeWidth);
+        }
+        if (line && line.dataset.origStrokeWidth) {
+          line.setAttribute('stroke-width', line.dataset.origStrokeWidth);
+        }
+      });
+
+      // 2. Reset previous SVG anatomical shapes
+      document.querySelectorAll('[id^="shape-"]').forEach(el => {
+        el.classList.remove('shape-selected');
+        const target = el.tagName.toLowerCase() === 'g' ? el.querySelector('ellipse, path, circle') : el;
+        if (target && target.dataset.origStrokeWidth) {
+          target.setAttribute('stroke-width', target.dataset.origStrokeWidth);
+        }
+        if (target && target.dataset.origFillOpacity) {
+          target.setAttribute('fill-opacity', target.dataset.origFillOpacity);
+        }
+      });
+
+      // 3. Reset matter quick buttons & structure chips
+      document.querySelectorAll('.matter-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-slate-900', 'shadow-sm');
+      });
+      document.querySelectorAll('.struct-chip').forEach(chip => {
+        chip.classList.remove('ring-2', 'ring-slate-900', 'bg-slate-800', 'text-white', 'border-slate-800');
+        chip.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-200');
+      });
+
+      selectedStructureKey = key;
+      if (!key) return;
+
+      // 4. Highlight matching callout box(es) inside the SVG diagram
+      document.querySelectorAll(`.callout-box[data-structure="${key}"]`).forEach(box => {
+        box.classList.add('callout-selected');
+        const rect = box.querySelector('rect');
+        const line = box.querySelector('line');
+        if (rect) {
+          if (!rect.dataset.origFill) rect.dataset.origFill = rect.getAttribute('fill') || '#ffffff';
+          if (!rect.dataset.origStrokeWidth) rect.dataset.origStrokeWidth = rect.getAttribute('stroke-width') || '1.5';
+          const strokeColor = rect.getAttribute('stroke') || '#0284c7';
+          rect.setAttribute('stroke-width', '3.2');
+          const tintMap = {
+            '#0284c7': '#e0f2fe',
+            '#7c3aed': '#ede9fe',
+            '#e11d48': '#ffe4e6',
+            '#f59e0b': '#fef3c7',
+            '#14b8a6': '#ccfbf1'
+          };
+          rect.setAttribute('fill', tintMap[strokeColor] || '#f1f5f9');
+        }
+        if (line) {
+          if (!line.dataset.origStrokeWidth) line.dataset.origStrokeWidth = line.getAttribute('stroke-width') || '1.3';
+          line.setAttribute('stroke-width', '2.6');
+        }
+      });
+
+      // 5. Highlight matching SVG anatomical shape
+      const shapeEl = document.getElementById(`shape-${key}`);
+      if (shapeEl) {
+        shapeEl.classList.add('shape-selected');
+        const target = shapeEl.tagName.toLowerCase() === 'g' ? shapeEl.querySelector('ellipse, path, circle') : shapeEl;
+        if (target) {
+          if (!target.dataset.origStrokeWidth) {
+            target.dataset.origStrokeWidth = target.getAttribute('stroke-width') || '2';
+          }
+          const origSw = parseFloat(target.dataset.origStrokeWidth);
+          target.setAttribute('stroke-width', String(origSw + 2.2));
+          if (target.hasAttribute('fill-opacity')) {
+            if (!target.dataset.origFillOpacity) {
+              target.dataset.origFillOpacity = target.getAttribute('fill-opacity');
+            }
+            target.setAttribute('fill-opacity', '0.78');
+          }
+        }
+      }
+
+      // 6. Highlight matching matter quick button (if gray_matter or white_matter)
+      const matterBtn = document.getElementById(`matterBtn-${key}`);
+      if (matterBtn) {
+        matterBtn.classList.add('ring-2', 'ring-slate-900', 'shadow-sm');
+      }
+
+      // 7. Highlight matching structure chip
+      const chip = document.getElementById(`chip-${key}`);
+      if (chip) {
+        chip.classList.remove('bg-slate-100', 'text-slate-700', 'border-slate-200');
+        chip.classList.add('ring-2', 'ring-slate-900', 'bg-slate-800', 'text-white', 'border-slate-800');
+      }
+    }
+
+    function selectStructure(key) {
+      const fact = SLIDE_FACTS[key];
+      if (!fact) return;
+
+      highlightStructure(key);
+
+      document.getElementById('infoTitle').textContent = fact.title;
+      document.getElementById('infoText').textContent = fact.text;
+
+      const badge = document.getElementById('infoDirectionBadge');
+      badge.textContent = fact.badge;
+      badge.className = `text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${fact.badgeClass}`;
+    }
+
+    function toggleThoracicHorn(isChecked) {
+      const hornGroup = document.getElementById('lateralHornGroup');
+      const calloutBox = document.getElementById('callout-lateral_horn');
+      if (isChecked) {
+        hornGroup.classList.remove('hidden');
+        calloutBox.classList.remove('hidden');
+        selectStructure('lateral_horn');
+      } else {
+        hornGroup.classList.add('hidden');
+        calloutBox.classList.add('hidden');
+        if (selectedStructureKey === 'lateral_horn') {
+          highlightStructure(null);
+        }
+      }
+    }
+
+    function startPathway(id) {
+      activePathwayId = id;
+      animPhase = 0;
+      const pw = PATHWAYS[id];
+
+      // Update pathway button active styling
+      document.querySelectorAll('.path-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-slate-900');
+      });
+      const activeBtn = document.getElementById(`pathBtn-${id}`);
+      if (activeBtn) activeBtn.classList.add('ring-2', 'ring-slate-900');
+
+      // Update explanation card
+      document.getElementById('infoTitle').textContent = pw.title;
+      document.getElementById('infoText').textContent = pw.text;
+      const badge = document.getElementById('infoDirectionBadge');
+      badge.textContent = pw.badge;
+      badge.className = `text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${pw.badgeClass}`;
+
+      // Highlight purple interneuron during Stretch Reflex (#4)
+      const interneuron = document.getElementById('reflexInterneuron');
+      if (id === 4) {
+        interneuron.setAttribute('opacity', '1');
+        interneuron.setAttribute('r', '7.5');
+      } else {
+        interneuron.setAttribute('opacity', '0.55');
+        interneuron.setAttribute('r', '5.5');
+      }
+
+      // Draw static highlighted pathway lines
+      const linesLayer = document.getElementById('activePathwayLines');
+      linesLayer.innerHTML = pw.tracks.map(tr => {
+        const d = tr.points.map((pt, idx) => `${idx === 0 ? 'M' : 'L'} ${pt[0]} ${pt[1]}`).join(' ');
+        return `<path d="${d}" fill="none" stroke="${tr.color}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4" opacity="0.78" />`;
+      }).join('');
+    }
+
+    function clearSimulation() {
+      activePathwayId = null;
+      highlightStructure(null);
+      document.querySelectorAll('.path-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-slate-900');
+      });
+      document.getElementById('activePathwayLines').innerHTML = '';
+      document.getElementById('activeSignalDots').innerHTML = '';
+      const interneuron = document.getElementById('reflexInterneuron');
+      interneuron.setAttribute('opacity', '0.55');
+      interneuron.setAttribute('r', '5.5');
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. SMOOTH 2D SIGNAL DOT ANIMATION LOOP
+    // -------------------------------------------------------------------------
+    function renderSignalDots() {
+      const dotsLayer = document.getElementById('activeSignalDots');
+      if (!activePathwayId) {
+        dotsLayer.innerHTML = '';
+        return;
+      }
+
+      const pw = PATHWAYS[activePathwayId];
+      let html = '';
+
+      pw.tracks.forEach(tr => {
+        const pts = tr.points;
+        const segLens = [];
+        let totalLen = 0;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const len = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
+          segLens.push(len);
+          totalLen += len;
+        }
+        if (totalLen < 1) return;
+
+        // Render 4 evenly spaced moving dots along the track
+        const count = 4;
+        for (let k = 0; k < count; k++) {
+          const t = (animPhase + k / count) % 1;
+          let dist = t * totalLen;
+          for (let i = 0; i < segLens.length; i++) {
+            if (dist <= segLens[i] || i === segLens.length - 1) {
+              const frac = segLens[i] > 0 ? Math.min(1, dist / segLens[i]) : 0;
+              const x = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * frac;
+              const y = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * frac;
+              html += `
+                <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7.5" fill="${tr.dotFill}" opacity="0.32" />
+                <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${tr.dotFill}" stroke="#ffffff" stroke-width="1.8" />
+              `;
+              break;
+            }
+            dist -= segLens[i];
+          }
+        }
+      });
+
+      dotsLayer.innerHTML = html;
+    }
+
+    function animate(ts) {
+      if (!lastTime) lastTime = ts;
+      const dt = (ts - lastTime) / 1000;
+      lastTime = ts;
+
+      if (activePathwayId) {
+        animPhase = (animPhase + dt * 0.32) % 1;
+        renderSignalDots();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. POPULATE STRUCTURE CHIPS ON LOAD
+    // -------------------------------------------------------------------------
+    function renderChips() {
+      const chipKeys = [
+        'gray_matter', 'white_matter', 'dorsal_horn', 'ventral_horn', 'lateral_horn',
+        'dorsal_root', 'ventral_root', 'spinal_nerve',
+        'dorsal_column', 'ventrolateral_column', 'lateral_column', 'ventral_column'
+      ];
+      const container = document.getElementById('structureChips');
+      container.innerHTML = chipKeys.map(k => `
+        <button id="chip-${k}" onclick="selectStructure('${k}')"
+          class="struct-chip px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition">
+          ${SLIDE_FACTS[k].title.split('(')[0].trim()}
+        </button>
+      `).join('');
+    }
+
+    window.onload = function () {
+      renderChips();
+      requestAnimationFrame(animate);
+    };
+  </script>
+</body>
+</html>
